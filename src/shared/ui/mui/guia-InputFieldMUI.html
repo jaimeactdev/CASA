@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Guía de uso: InputFieldMUI</title>
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; line-height: 1.6; margin: 24px; color: #1b1f23; }
+    h1 { font-size: 24px; margin-bottom: 12px; }
+    h2 { font-size: 18px; margin-top: 24px; margin-bottom: 8px; }
+    p { margin: 8px 0; }
+    code, pre { background: #f6f8fa; border: 1px solid #d0d7de; border-radius: 6px; }
+    pre { padding: 12px; overflow: auto; }
+    code { padding: 2px 6px; }
+    ul { margin: 8px 0 8px 20px; }
+    .note { background: #fff8e1; border: 1px solid #ffe082; padding: 10px; border-radius: 6px; }
+  </style>
+</head>
+<body>
+  <h1>InputFieldMUI</h1>
+  <p>Componente de entrada basado en MUI con soporte para validación por filtro de teclado, formato de miles, estados deshabilitado y solo lectura, adornos de iconos y textos auxiliares.</p>
+
+  <h2>Importación</h2>
+  <pre><code>import InputFieldMUI from '@/shared/ui/mui/InputFieldMUI';</code></pre>
+
+  <h2>Props principales</h2>
+  <ul>
+    <li><code>name: string</code> Identificador del campo.</li>
+    <li><code>value: string</code> Valor controlado del input.</li>
+    <li><code>label?: string</code> Etiqueta visible.</li>
+    <li><code>smallText?: string</code> Texto auxiliar bajo el campo.</li>
+    <li><code>onChange: (e) =&gt; void</code> Manejador de cambios.</li>
+    <li><code>onBlur?: (e) =&gt; void</code> Manejador de blur.</li>
+    <li><code>error?: string</code> Mensaje de error a mostrar.</li>
+    <li><code>disabled?: boolean</code> Deshabilita la edición.</li>
+    <li><code>readonlyMode?: boolean</code> Muestra solo lectura.</li>
+    <li><code>placeholder?: string</code> Texto placeholder.</li>
+    <li><code>maxlenght?: number</code> Límite de caracteres. Si no se define y el <code>keyfilter</code> es numérico (<code>int</code>, <code>pint</code>, <code>num</code>, <code>money</code>, <code>pnum</code>), el default es <strong>20</strong>; en el resto de casos es 2000. Si se pasa un valor explícito (p. ej. 6), se respeta. En campos numéricos se muestra automáticamente debajo del input el texto <em>Máximo N caracteres</em>.</li>
+    <li><code>keyfilter?: KeyFilterType</code> Filtra lo que el usuario puede teclear.</li>
+    <li><code>formatThousands?: boolean</code> Muestra separadores de miles manteniendo el valor sin formato.</li>
+    <li><code>startIcon?: ReactNode</code> Icono al inicio.</li>
+    <li><code>endIcon?: ReactNode</code> Icono al final.</li>
+    <li><code>onEndIconClick?: () =&gt; void</code> Acción del icono final.</li>
+    <li><code>endIconTooltip?: string</code> Tooltip para el icono final.</li>
+  </ul>
+
+  <h2>KeyFilterType</h2>
+  <p>Valores soportados para filtrar el input:</p>
+  <ul>
+    <li><code>int</code> enteros con signo</li>
+    <li><code>pint</code> enteros positivos</li>
+    <li><code>num</code> números con signo y decimales</li>
+    <li><code>money</code> numérico con hasta dos decimales</li>
+    <li><code>hex</code> hexadecimal</li>
+    <li><code>alpha</code> solo letras A–Z</li>
+    <li><code>alphanum</code> letras y números</li>
+    <li><code>email</code> caracteres típicos de email</li>
+    <li><code>pnum</code> números positivos con prefijo <code>+</code></li>
+    <li><code>alpha-es</code> letras con acentos y <code>ñ</code></li>
+    <li><code>RegExp</code> expresión regular personalizada</li>
+  </ul>
+
+  <h2>Formato de miles</h2>
+  <p>Con <code>formatThousands</code> el componente muestra el valor con separadores de miles, pero el <code>onChange</code> recibe el valor sin comas para facilitar persistencia y validación.</p>
+
+  <h2>Integración con React Hook Form</h2>
+  <pre><code>{`import { Controller, useForm } from 'react-hook-form';
+
+function MiFormulario() {
+  const { control, formState: { errors } } = useForm({ mode: 'onChange' });
+
+  return (
+    &lt;Controller
+      name="precio"
+      control={control}
+      rules={{ required: 'El precio es obligatorio' }}
+      render={({ field }) =&gt; (
+        &lt;InputFieldMUI
+          {...field}
+          label="Precio"
+          smallText="Ingresa el valor en COP"
+          keyfilter="money"
+          formatThousands={true}
+          error={errors.precio?.message as string}
+        /&gt;
+      )}
+    /&gt;
+  );
+}`}</code></pre>
+
+  <h2>Iconos y acciones</h2>
+  <pre><code>{`import InfoOutlined from '@mui/icons-material/InfoOutlined';
+
+&lt;InputFieldMUI
+  name="codigo"
+  value="AB123"
+  label="Código"
+  startIcon={&lt;InfoOutlined /&gt;}
+  endIcon={&lt;InfoOutlined /&gt;}
+  endIconTooltip="Más información"
+  onEndIconClick={() =&gt; alert('Acción del icono')}
+/&gt;`}</code></pre>
+
+  <h2>Estados comunes</h2>
+  <pre><code>{`&lt;InputFieldMUI
+  name="soloLectura"
+  value="12345"
+  label="Solo lectura"
+  readonlyMode={true}
+/&gt;
+
+&lt;InputFieldMUI
+  name="deshabilitado"
+  value=""
+  label="Deshabilitado"
+  disabled={true}
+/&gt;`}</code></pre>
+
+  <h2>Buenas prácticas</h2>
+  <ul>
+    <li>Usar <code>rules</code> de React Hook Form para requeridos y mensajes de error.</li>
+    <li>Aplicar <code>keyfilter</code> para prevenir entradas inválidas desde el inicio.</li>
+    <li>Habilitar <code>formatThousands</code> en campos numéricos de gran magnitud.</li>
+    <li>Utilizar <code>smallText</code> para aclaraciones cortas sin saturar la UI.</li>
+    <li>Preferir <code>readonlyMode</code> cuando el campo se muestra informativo y no editable.</li>
+  </ul>
+
+  <div class="note">
+    <strong>Nota:</strong> El valor enviado en <code>onChange</code> es siempre el valor sin formato cuando se usa <code>formatThousands</code>, lo que simplifica almacenamiento y validación.
+  </div>
+</body>
+</html>
+

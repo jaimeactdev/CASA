@@ -1,0 +1,16 @@
+:root {
+  /* Fallbacks. The live values are injected from designTokens (NEXT_PUBLIC_BRAND_COLOR). */
+  --color-primary: #1E5631;
+  --color-primary-title: #1E5631;
+  --color-secondary-title: #3F3F3F;
+  --color-secondary: #F0F2F5;
+  --color-bg: #ffffff;
+  --color-text: #59595b;
+  --color-primary-background-button: #1E5631;
+  --color-focus-input: #1E5631;
+  --color-brand-press: #1A4A2A;
+  --color-brand-hover: #3F3F3F;
+  --color-brand-bg: #E9EEEA;
+  --color-brand-tint: rgba(30, 86, 49, 0.12);
+  --color-brand-shadow: rgba(30, 86, 49, 0.35);
+}

@@ -1,0 +1,641 @@
+@import "../styles/variables.css";
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  box-shadow: 0 0 0px 1000px white inset !important;
+  -webkit-text-fill-color: #000 !important;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+:root {
+   --font-family: 'Poppins', Arial, Helvetica, sans-serif;
+  --background: #ffffff;
+  --foreground: #171717;
+    /* Inputs */
+  --color-color-focus-input: var(--color-focus-input);
+  --border-input-default: 1.8px solid #cccccc;
+  --border-color-input-default: #cccccc; 
+  --border-color-input-error: red;
+  --box-shadow-input-default: 0 0 0 0 rgba(255, 129, 44, 0.25);
+  --color-message-validation-error: #f44336;
+  --font-size-text-help-input: 12px;
+  --color-text-help-input : #7d7d7d;
+  --color-textos-primary : #3F3F3F;
+
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+html,
+body {
+  max-width: 100vw;
+  /*overflow-x: hidden;*/
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+ font-family: 'Poppins', Arial, Helvetica, sans-serif !important;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+  padding: 0; 
+  margin: 0;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+@media (prefers-color-scheme: dark) {
+  html {
+    color-scheme: dark;
+  }
+}
+
+.p-datatable .p-sortable-column.p-highlight {
+
+  color: var(--color-color-focus-input);
+}
+
+.p-datatable .p-datatable-tbody > tr {
+    height: 50px !important;
+}
+
+.url_template {
+
+  color: var(--color-color-focus-input);
+}
+
+
+
+.p-toast {
+  padding: 2rem !important; /* puedes ajustar a 16px, 20px, etc */
+  border-radius: 8px;
+}
+
+.p-multiselect-token-label {
+
+  font-size: 14px;
+  padding-right: 3px;
+}
+
+.p-toast-message-text{
+
+     padding: 5px !important;
+}
+
+.p-toast-message-content {
+  display: flex;
+  align-items: center;
+}
+
+
+.p-multiselect{
+
+  border-radius: 20px;
+
+}
+
+.p-multiselect:hover{
+
+  border-radius: 20px;
+ border: 2px solid  var(--color-color-focus-input);
+
+}
+
+.p-inputtext {
+
+border-radius: 20px;
+padding-left: 10px !important;
+}
+
+.p-multiselect-checkbox{
+  margin-right: 8px !important;
+}
+
+.p-inputtext:hover {
+
+  border-radius: 20px;
+  border: 2px solid  var(--color-color-focus-input);
+}
+
+.p-paginator .p-inputtext:hover {
+
+  border-radius: 0px !important;
+  border:0px !important;
+}
+
+
+.p-dropdown:not(.p-disabled).p-focus {
+
+  box-shadow: 0 0 0 0 #fff !important;
+}
+
+
+.p-multiselect-panel {
+  padding-left: 5px !important;
+}
+
+.p-multiselect-panel .p-multiselect-items .p-multiselect-item.p-highlight.p-focus {
+
+  background: rgba(223, 188, 149, 0.24);
+}
+
+.p-multiselect:not(.p-disabled).p-focus {
+
+   box-shadow: 0 0 0 0 #a6d5fa;
+  border-color: var(--color-color-focus-input);
+}
+
+.p-inputtext:enabled:focus {
+
+  box-shadow: 0 0 0 0 #a6d5fa;
+  border-color: var(--color-color-focus-input);
+}
+
+.prime-grid-wrapper .p-multiselect,
+.prime-grid-wrapper .p-button {
+  margin: 0.25rem 0.5rem;
+}
+
+/* Estilos datatable */
+
+.p-column-title{
+  margin-left: 12px !important;
+    margin-right: 12px !important;
+
+}
+
+.p-inputtext{
+
+  height: 38px !important;
+  padding-left: 5px !important;
+}
+
+.p-multiselect-label {
+  height: 40px !important;
+  padding-top: 5px !important;
+  padding-left: 5px !important;
+}
+
+.p-multiselect-token{
+
+  padding: 0.25rem 0.5rem !important;
+    margin-right: 0.5rem !important;
+}
+
+
+.p-datatable-tbody > tr {
+
+  height: 50px !important;
+} 
+
+.p-datatable-thead{
+  height: 60px !important;
+}
+
+
+
+.p-datatable-tbody {
+
+  height: 50px !important;
+}
+.p-datatable .p-datatable-tbody>tr>td {
+    border: solid #e9ecef!important;
+    border-width: 0 0 1px!important;
+    padding-left: 1rem!important;
+    padding-bottom: 10px !important;
+    padding-top: 10px !important;
+    text-align: left!important;
+    overflow: hidden;
+}
+
+.p-datatable-table {
+    table-layout: fixed;
+    width: 100%;
+}
+
+.datatable-cell-text {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    max-width: 100%;
+    min-width: 0;
+    line-height: 1.35;
+}
+
+.datatable-cell-text--wrap {
+    display: block;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    white-space: normal;
+    max-width: 100%;
+    min-width: 0;
+    line-height: 1.35;
+}
+
+.p-datatable .p-datatable-header {
+    background: #f8f9fa !important;
+    border: 1px solid #e9ecef !important;
+    border-width: 1px 0 !important;
+    color: #495057 !important;
+    font-weight: 600 !important;
+    padding: 1rem !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: right !important;
+    height: 50px !important;
+}
+
+.headerDatatableDekstop {
+    align-items: center !important;
+    display: flex !important;
+    justify-content: flex-end !important;
+}
+
+.p-datatable .p-paginator-bottom, .p-datatable .p-paginator-top {
+    border-radius: 0 !important;
+    border-width: 0 0 1px !important;
+}
+
+.p-paginator {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    flex-wrap: wrap !important;
+}
+
+.p-paginator {
+    background: #fff !important;
+    border: 0 solid #e9ecef !important;
+    border-radius: 3px !important;
+    color: #6c757d !important;
+    padding: .5rem 1rem !important;
+}
+
+
+.p-paginator .p-dropdown {
+    height: 2.357rem;
+    margin-left: .5rem;
+}
+
+.p-dropdown:not(.p-disabled):hover {
+    border-color: var(--color-color-focus-input) !important;
+}
+
+.p-dropdown {
+    display: inline-flex !important;
+    cursor: pointer !important;
+    position: relative !important;
+    user-select: none !important;
+}
+
+.p-component, .p-component * {
+    box-sizing: border-box !important;
+     font-family: 'Poppins', Arial, Helvetica, sans-serif !important;
+}
+
+.p-dropdown {
+    background: #fff !important;
+    border: 1px solid #ced4da !important;
+    border-radius: 3px !important;
+    outline-color: #0000 !important;
+    
+}
+
+
+.p-button{
+    background: var(--color-color-focus-input) !important;
+    border: none !important;
+    border-radius: 9999px !important;
+    color: #fff !important;
+    font-family: 'Roboto', sans-serif !important;
+    font-size: 14px !important;
+    font-weight: 500 !important;
+    height: 44px !important;
+    min-height: 44px !important;
+    padding: 0 24px !important;
+    transition: all 0.12s !important;
+    box-shadow: none !important;
+}
+
+.p-button:hover {
+  background: var(--color-brand-hover) !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
+
+.p-button:active {
+  background: var(--color-brand-press) !important;
+  border-color: transparent !important;
+  transform: scale(0.97) !important;
+  box-shadow: none !important;
+}
+
+.p-button:disabled,
+.p-button.p-disabled {
+  background: #F1F1F1 !important;
+  border-color: #F1F1F1 !important;
+  color: #C3C3C3 !important;
+  cursor: not-allowed !important;
+  pointer-events: none !important;
+  transform: none !important;
+}
+
+
+  .p-checkbox.p-highlight .p-checkbox-box {
+
+    border-color:var(--color-color-focus-input);
+    background: var(--color-color-focus-input);
+  }
+
+    .p-paginator .p-dropdown-label {
+
+    padding-top: 6px !important;
+  }
+
+.p-calendar:not(.p-calendar-disabled).p-focus > .p-inputtext {
+
+      box-shadow: 0 0 0 0 #a6d5fa;
+    border-color: var(--color-color-focus-input);
+}
+
+/* Datatable New*/
+
+.p-multiselect-chip {
+  width: 600px !important;
+}
+
+/* Filtros de columna en thead: anular el ancho fijo de 600px del modo chip */
+.p-datatable-thead .p-multiselect.p-multiselect-chip {
+  width: auto !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+}
+
+.p-datatable-thead .p-multiselect-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Panel de filtro por columna: corrige lupa desalineada por height global de .p-inputtext */
+.p-multiselect-panel.datatable-column-filter-panel .p-multiselect-header .p-multiselect-filter-container {
+  display: flex;
+  align-items: center;
+}
+
+.p-multiselect-panel.datatable-column-filter-panel
+  .p-multiselect-header
+  .p-multiselect-filter-container
+  .p-inputtext {
+  height: 2.25rem !important;
+  padding-left: 0.75rem !important;
+  padding-right: 2rem !important;
+  border-radius: 4px !important;
+}
+
+.p-multiselect-panel.datatable-column-filter-panel
+  .p-multiselect-header
+  .p-multiselect-filter-container
+  .p-multiselect-filter-icon {
+  top: 50%;
+  right: 0.75rem;
+  margin-top: 0;
+  transform: translateY(-50%);
+}
+
+@media (min-width: 320px) and (max-width: 390px) {
+  
+  .p-multiselect-chip {
+      max-width: 200px !important;
+    }
+  
+}
+
+@media (min-width: 391px) and (max-width: 480px) {
+  
+  .p-multiselect-chip {
+      max-width: 270px !important;
+    }
+  
+}
+
+@media (min-width: 481px) and (max-width: 768px) {
+  
+  .p-multiselect-chip {
+      max-width: 400px !important;
+    }
+  
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  
+  .p-multiselect-chip {
+      max-width: 650px !important;
+    }
+  
+}
+
+
+
+@media (max-width: 768px) {
+  .p-datatable-wrapper {
+    overflow-x: auto !important;
+  }
+
+  .p-datatable-table {
+    min-width: 600px !important;
+  }
+}
+
+
+.p-datatable-wrapper {
+  overflow-x: auto !important;
+}
+
+.p-datatable {
+  width: 100% !important;
+  min-width: 100% !important;
+  table-layout: fixed !important;;
+}
+
+
+/* Estilos específicos para PrimeReact dentro de MUI */
+.prime-grid-wrapper .p-datatable {
+  width: 100%;
+  max-width: 100%;
+  border: none;
+ font-family: 'Poppins', Arial, Helvetica, sans-serif !important;
+}
+
+.prime-grid-wrapper .p-datatable-header {
+  display: flex !important;
+  flex-wrap: wrap!important;
+  gap: 1rem !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+
+
+/* Datatable*/
+
+/*
+
+@media (min-width: 1601px) {
+  .p-datatable-responsive-scroll {
+    max-width: 1500px;
+  }
+}
+
+@media (min-width: 320px) and (max-width: 480px) {
+  
+  .p-datatable-responsive-scroll {
+      max-width: 320px;
+    }
+  
+}
+
+  @media (min-width: 481px) and (max-width: 767px) {
+  
+  .p-datatable-responsive-scroll {
+      max-width: 450px;
+    }
+  
+  
+}
+
+@media (min-width: 768px) and (max-width: 1024px)  {
+  
+ .p-datatable-responsive-scroll {
+      max-width: 640px;
+    }
+  
+}
+
+@media (min-width: 1025px) and (max-width: 1280px) {
+  
+ .p-datatable-responsive-scroll {
+      max-width: 900px;
+    }
+  
+  
+}
+
+@media (min-width: 1281px) and (max-width: 1600px) {
+  
+ .p-datatable-responsive-scroll {
+      max-width: 1300px;
+    }
+  
+  
+}
+
+
+
+*/
+
+
+
+/* Modales */
+.p-dialog .p-dialog-header {
+
+  padding: 1.5rem;
+  
+}
+
+.p-dialog .p-dialog-content {
+
+  padding: 0 1.5rem 2rem;
+  text-align: justify;
+}
+
+
+.verMasLink {
+  color: var(--color-color-focus-input);
+  font-weight: 500;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.verMasContainer {
+  color: var(--color-color-focus-input);
+}
+
+.p-paginator .p-paginator-pages .p-paginator-page.p-highlight {
+    background: var(--color-brand-bg);
+    border-color: var(--color-brand-bg);
+    color: #495057;
+    border-radius: 15px;
+}
+
+.p-paginator .p-paginator-pages .p-paginator-page:not(.p-highlight):hover {
+    background: var(--color-brand-bg);
+    border-color: transparent;
+    color: #495057;
+     border-radius: 15px;
+ 
+}
+
+.button-home {
+  position: relative;
+  appearance: none;
+  background: var(--color-primary);
+  padding: 0 32px;
+  height: 52px;
+  border: none;
+  color: white;
+  margin-top: 10px;
+  font-family: 'Roboto', sans-serif;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  outline: none;
+  overflow: hidden;
+  transition: all 0.12s;
+  border-radius: 9999px;
+  
+  span {
+    position: relative;
+    pointer-events: none;
+  }
+  
+  &::before {
+    --size: 0;
+
+    content: '';
+    position: absolute;
+    left: var(--x);
+    top: var(--y);
+    width: var(--size);
+    height: var(--size);
+    background: radial-gradient(circle closest-side, var(--color-brand-hover), transparent);
+    transform: translate(-50%, -50%);
+    transition: width .2s ease, height .2s ease;
+  }
+  
+  &:hover::before {
+    --size: 400px;
+  }
+}
+
+

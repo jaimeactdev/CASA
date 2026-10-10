@@ -1,0 +1,12 @@
+# *
+User-agent: *
+Allow: /
+Disallow: /login
+Disallow: /home
+Disallow: /api/
+
+# Host
+Host: http://localhost:4200
+
+# Sitemaps
+Sitemap: http://localhost:4200/sitemap.xml
