@@ -47,7 +47,7 @@ export function useLoginViewModel() {
       setErrors({});
       setUser(result.user);
       setLastActivityTime();
-      router.push('/home');
+      router.push(result.user.mustChangePassword ? '/cambiar-clave' : '/home');
     } catch (error) {
       const message = (error as { message?: string } | null)?.message;
       setFormError(message?.trim() || FALLBACK_ERROR);

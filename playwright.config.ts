@@ -26,6 +26,8 @@ export default defineConfig({
     env: {
       ...process.env,
       NEXT_PUBLIC_APP_NAME: 'CASA',
+      E2E_BYPASS_AUTH: '1',
+      AUTH_SECRET: 'e2e-auth-secret-not-for-production',
     },
   },
   projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],

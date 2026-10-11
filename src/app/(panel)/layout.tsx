@@ -46,7 +46,9 @@ export default function PanelLayout({
 function InnerLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const normalizedPath = normalizePathname(pathname);
-  const isLoginPage = normalizedPath === "/login";
+  const isBarePage =
+    normalizedPath === "/login" || normalizedPath === "/cambiar-clave";
+  const isLoginPage = isBarePage;
   const router = useRouter();
   const { isXs, isSm } = useBreakpoint();
   const isMobile = isXs || isSm;
@@ -84,8 +86,7 @@ function InnerLayout({ children }: { children: React.ReactNode }) {
     url: string,
     list: any[],
   ): "A" | "I" | "R" | null => {
-    // /home and / are always allowed
-    if (url === "/home" || url === "/") return "A";
+    if (url === "/") return "A";
 
     // Base module (e.g. "/contratos/valores-horarios" -> "/contratos")
     const urlSegments = url.split("/").filter(Boolean);
@@ -120,8 +121,13 @@ function InnerLayout({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (!pathname) return;
 
-    if (normalizedPath === "/login") {
+    if (isBarePage) {
       setAccessChecked(true);
+      return;
+    }
+
+    if (user?.mustChangePassword) {
+      router.replace("/cambiar-clave");
       return;
     }
 
@@ -152,7 +158,7 @@ function InnerLayout({ children }: { children: React.ReactNode }) {
       // allowed
       setAccessChecked(true);
     }
-  }, [pathname, user, router, menuItems, allMenuItems, normalizedPath]);
+  }, [pathname, user, router, menuItems, allMenuItems, normalizedPath, isBarePage]);
 
   useEffect(() => {
     if (normalizedPath !== "/login") return;

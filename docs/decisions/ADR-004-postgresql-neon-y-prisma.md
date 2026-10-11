@@ -28,7 +28,7 @@ Hace falta una base relacional gratuita, que conserve los datos de forma permane
 
 ## Consecuencias
 
-- Neon apaga la computación tras unos 5 minutos sin uso. La primera consulta después tarda un poco más, y los datos no se pierden.
+- Neon apaga la computación tras unos 5 minutos sin uso. La primera consulta después tarda un poco más, y **los datos no se pierden ni se borran por inactividad**. Eso lo diferencia del cluster gratuito de MongoDB Atlas, que se pausa a los 30 días sin conexiones.
 - La restauración de Neon en el plan gratuito cubre pocas horas hacia atrás. El respaldo semanal propio es obligatorio.
 - El volumen esperado (cientos de afiliados, miles de cuotas al año) cabe de sobra en el almacenamiento gratuito. Los límites exactos se revisan en la página de precios de Neon al crear el proyecto.
 - Dependencias que entran con el primer módulo de datos: `prisma`, `@prisma/client`, `zod`.

@@ -67,9 +67,13 @@ class HttpRequestProvider {
       switch (error.response.status) {
         case 400:
           throw { ...data, message: data.message ?? 'Solicitud incorrecta' };
-        case 401:
-          showSessionExpiredToast();
+        case 401: {
+          const requestUrl = String(error.config?.url ?? '');
+          if (!requestUrl.includes('/auth/me')) {
+            showSessionExpiredToast();
+          }
           throw { ...data, message: data.message ?? 'No autorizado' };
+        }
         case 403:
           throw {
             ...data,

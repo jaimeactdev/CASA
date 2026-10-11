@@ -2,11 +2,10 @@ import { expect, test } from '@playwright/test';
 import { E2E_USER, gotoApp, mockSessionApi, openWithSession } from './helpers/session';
 
 test.describe('Session (user journey)', () => {
-  test('without a session, /home stays reachable', async ({ page }) => {
+  test('without a session, /home redirects to login', async ({ page }) => {
     await mockSessionApi(page);
     await gotoApp(page, '/home');
-    await expect(page).toHaveURL(/\/home\/?$/);
-    await expect(page.getByRole('heading', { name: 'Bienvenido' })).toBeVisible();
+    await expect(page).toHaveURL(/\/login\/?$/);
   });
 
   test('with a mocked session, home loads', async ({ page }) => {
@@ -23,7 +22,7 @@ test.describe('Session (user journey)', () => {
     await expect(page).toHaveURL(/\/home\/?$/);
   });
 
-  test('logout returns to login and /home stays public', async ({ page }) => {
+  test('logout returns to login and /home stays protected', async ({ page }) => {
     await openWithSession(page, '/home');
     await expect(page.getByRole('heading', { name: /Hola/ })).toBeVisible();
 
@@ -37,7 +36,6 @@ test.describe('Session (user journey)', () => {
       localStorage.removeItem('user');
     });
     await gotoApp(page, '/home');
-    await expect(page).toHaveURL(/\/home\/?$/);
-    await expect(page.getByRole('heading', { name: 'Bienvenido' })).toBeVisible();
+    await expect(page).toHaveURL(/\/login\/?$/);
   });
 });

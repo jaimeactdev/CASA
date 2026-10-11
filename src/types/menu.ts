@@ -1,5 +1,4 @@
-// types/menu.ts
-export type MenuItemStatus = "A" | "I" | "R"; // A = active, I = inactive, R = requires session
+export type MenuItemStatus = 'A' | 'I' | 'R';
 
 export interface MenuItem {
   text: string;
@@ -8,7 +7,7 @@ export interface MenuItem {
   external?: boolean;
   subItems?: MenuItem[];
   status?: MenuItemStatus;
+  permission?: string;
   onClick?: () => void;
-  /** Top-level menu section (corporate orange style) */
   primarySection?: boolean;
 }

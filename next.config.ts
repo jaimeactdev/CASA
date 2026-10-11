@@ -1,6 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  serverExternalPackages: ["@prisma/client", "bcryptjs"],
   webpack(config) {
     config.module.rules.push({
       test: /\.svg$/,

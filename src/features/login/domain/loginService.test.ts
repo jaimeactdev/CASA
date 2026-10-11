@@ -7,6 +7,7 @@ function fakeRepo(overrides: Record<string, unknown> = {}) {
     signIn: vi.fn(),
     getConnectedUserInfo: vi.fn(),
     logout: vi.fn(),
+    changePassword: vi.fn(),
     ...overrides,
   };
 }
@@ -71,6 +72,22 @@ describe('LoginService.signIn', () => {
     await expect(
       service.signIn({ email: 'ana@casa.co', password: 'secreta123' }),
     ).rejects.toBeInstanceOf(ArgumentNullException);
+  });
+});
+
+describe('LoginService.changePassword', () => {
+  it('returns field errors without calling the repository', async () => {
+    const repo = fakeRepo();
+    const service = new LoginService(repo as never);
+
+    const result = await service.changePassword({
+      currentPassword: '',
+      newPassword: 'corta',
+      confirmPassword: 'otra',
+    });
+
+    expect(result.ok).toBe(false);
+    expect(repo.changePassword).not.toHaveBeenCalled();
   });
 });
 

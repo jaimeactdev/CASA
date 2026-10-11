@@ -2,6 +2,11 @@ import { LoginRepository } from '../data/repositories/LoginRepository';
 import ArgumentNullException from '@/core/exceptions/argument_null_exception';
 import type { User } from '@/core/store/useUserStore';
 import {
+  validateChangePassword,
+  type ChangePasswordValues,
+  type ChangePasswordErrors,
+} from './changePasswordTypes';
+import {
   validateCredentials,
   type LoginCredentials,
   type LoginErrors,
@@ -10,6 +15,10 @@ import {
 export type SignInResult =
   | { ok: true; user: User }
   | { ok: false; errors: LoginErrors };
+
+export type ChangePasswordResult =
+  | { ok: true; user: User }
+  | { ok: false; errors: ChangePasswordErrors };
 
 export function toSessionUser(payload: unknown): User | null {
   const data = (payload as { data?: unknown } | null)?.data ?? payload;
@@ -60,5 +69,22 @@ export class LoginService {
     } catch (error) {
       console.error('Error closing the session against the server:', error);
     }
+  }
+
+  async changePassword(values: ChangePasswordValues): Promise<ChangePasswordResult> {
+    const errors = validateChangePassword(values);
+    if (Object.keys(errors).length > 0) {
+      return { ok: false, errors };
+    }
+
+    const response = await this.repo.changePassword({
+      currentPassword: values.currentPassword,
+      newPassword: values.newPassword,
+    });
+    const user = toSessionUser(response);
+    if (!user) {
+      throw new ArgumentNullException('Response is empty');
+    }
+    return { ok: true, user };
   }
 }

@@ -4,6 +4,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useUserStore } from '@/core/store/useUserStore';
 import {
+  CHANGE_PASSWORD_ROUTE,
   isAuthRequiredPath,
   resolveAuthGate,
 } from '@/core/guards/resolveAuthGate';
@@ -12,6 +13,9 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
   const userEmail = useUserStore((state) => state.user?.email);
+  const mustChangePassword = useUserStore(
+    (state) => state.user?.mustChangePassword,
+  );
   const sessionStatus = useUserStore((state) => state.sessionStatus);
   const [authorized, setAuthorized] = useState(false);
 
@@ -20,6 +24,7 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
       pathname,
       userEmail,
       sessionStatus,
+      mustChangePassword,
     });
 
     if (decision.allow) {
@@ -32,16 +37,17 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
       return;
     }
 
+    if (decision.reason === 'redirect-password') {
+      router.replace(CHANGE_PASSWORD_ROUTE);
+      setAuthorized(false);
+      return;
+    }
+
     router.push('/login');
     setAuthorized(false);
-  }, [pathname, userEmail, sessionStatus, router]);
+  }, [pathname, userEmail, sessionStatus, mustChangePassword, router]);
 
-  let currentPath = pathname || '';
-  if (currentPath.endsWith('/') && currentPath.length > 1) {
-    currentPath = currentPath.slice(0, -1);
-  }
-
-  if (!authorized && isAuthRequiredPath(currentPath)) {
+  if (!authorized && isAuthRequiredPath(pathname)) {
     return null;
   }
 

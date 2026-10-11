@@ -1,0 +1,288 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum DocumentType {
+  CC
+  CE
+  PASSPORT
+  PPT
+}
+
+enum Sex {
+  FEMALE
+  MALE
+  UNSPECIFIED
+}
+
+enum MemberStatus {
+  ACTIVE
+  SUSPENDED
+  RETIRED
+}
+
+enum FeeType {
+  MONTHLY
+  ENROLLMENT
+}
+
+enum FeeStatus {
+  PENDING
+  OVERDUE
+  PAID
+}
+
+enum BenefitType {
+  ANNUAL
+  EVENTUAL
+}
+
+enum BenefitAudience {
+  ALL
+  FEMALE
+  MALE
+}
+
+model Settings {
+  id                 Int      @id
+  name               String
+  acronym            String
+  serviceCity        String   @map("service_city")
+  phone              String?
+  contactEmail       String?  @map("contact_email")
+  address            String?
+  openingHours       String?  @map("opening_hours")
+  minimumWage        Int      @default(0) @map("minimum_wage")
+  firstFeeCutoffDay  Int      @map("first_fee_cutoff_day")
+  firstFeePercent    Decimal  @map("first_fee_percent") @db.Decimal(6, 2)
+  graceDays          Int      @map("grace_days")
+  surchargePercent   Decimal  @map("surcharge_percent") @db.Decimal(6, 2)
+  enrollmentFee      Int      @default(0) @map("enrollment_fee")
+  allowMultiFeePayment Boolean @default(true) @map("allow_multi_fee_payment")
+  updatedAt          DateTime @updatedAt @map("updated_at")
+
+  @@map("settings")
+}
+
+model PaymentMethod {
+  id        String  @id @default(uuid()) @db.Uuid
+  name      String  @unique
+  isActive  Boolean @default(true) @map("is_active")
+  sortOrder Int     @map("sort_order")
+  fees      Fee[]
+
+  @@map("payment_methods")
+}
+
+model User {
+  id                 String    @id @default(uuid()) @db.Uuid
+  name               String
+  email              String    @unique
+  passwordHash       String    @map("password_hash")
+  roleId             String    @map("role_id") @db.Uuid
+  isActive           Boolean   @default(true) @map("is_active")
+  mustChangePassword Boolean   @default(true) @map("must_change_password")
+  lastLoginAt        DateTime? @map("last_login_at")
+  createdAt          DateTime  @default(now()) @map("created_at")
+  updatedAt          DateTime  @updatedAt @map("updated_at")
+  role               Role      @relation(fields: [roleId], references: [id], onDelete: Restrict)
+  membersCreated     Member[]
+  feesPaid           Fee[]
+  deliveriesMade     BenefitDelivery[] @relation("DeliveredBy")
+  deliveriesVoided   BenefitDelivery[] @relation("VoidedBy")
+  auditLogs          AuditLog[]
+
+  @@map("users")
+}
+
+model Role {
+  id          String           @id @default(uuid()) @db.Uuid
+  name        String           @unique
+  description String?
+  isSystem    Boolean          @default(false) @map("is_system")
+  isActive    Boolean          @default(true) @map("is_active")
+  users       User[]
+  permissions RolePermission[]
+
+  @@map("roles")
+}
+
+model Permission {
+  id     String           @id @default(uuid()) @db.Uuid
+  key    String           @unique
+  module String
+  label  String
+  roles  RolePermission[]
+
+  @@map("permissions")
+}
+
+model RolePermission {
+  roleId       String     @map("role_id") @db.Uuid
+  permissionId String     @map("permission_id") @db.Uuid
+  role         Role       @relation(fields: [roleId], references: [id], onDelete: Restrict)
+  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Restrict)
+
+  @@id([roleId, permissionId])
+  @@map("role_permissions")
+}
+
+model MembershipProfile {
+  id         String           @id @default(uuid()) @db.Uuid
+  name       String           @unique
+  percent    Decimal          @db.Decimal(6, 2)
+  isActive   Boolean          @default(true) @map("is_active")
+  createdAt  DateTime         @default(now()) @map("created_at")
+  updatedAt  DateTime         @updatedAt @map("updated_at")
+  members    Member[]
+  benefits   ProfileBenefit[]
+
+  @@map("membership_profiles")
+}
+
+model Benefit {
+  id                    String           @id @default(uuid()) @db.Uuid
+  name                  String
+  internalDescription   String           @map("internal_description")
+  publicText            String?          @map("public_text")
+  isPublic              Boolean          @default(false) @map("is_public")
+  type                  BenefitType
+  audience              BenefitAudience
+  minPaidFeesInYear     Int              @default(0) @map("min_paid_fees_in_year")
+  maxDeliveriesPerYear  Int              @map("max_deliveries_per_year")
+  suggestedMonth        Int?             @map("suggested_month")
+  requiresMinimumSetup  Boolean          @default(false) @map("requires_minimum_setup")
+  isActive              Boolean          @default(true) @map("is_active")
+  createdAt             DateTime         @default(now()) @map("created_at")
+  updatedAt             DateTime         @updatedAt @map("updated_at")
+  profiles              ProfileBenefit[]
+  deliveries            BenefitDelivery[]
+
+  @@map("benefits")
+}
+
+model ProfileBenefit {
+  profileId String            @map("profile_id") @db.Uuid
+  benefitId String            @map("benefit_id") @db.Uuid
+  profile   MembershipProfile @relation(fields: [profileId], references: [id], onDelete: Restrict)
+  benefit   Benefit           @relation(fields: [benefitId], references: [id], onDelete: Restrict)
+
+  @@id([profileId, benefitId])
+  @@map("profile_benefits")
+}
+
+model Member {
+  id             String           @id @default(uuid()) @db.Uuid
+  documentType   DocumentType     @map("document_type")
+  documentNumber String           @map("document_number")
+  firstNames     String           @map("first_names")
+  lastNames      String           @map("last_names")
+  sex            Sex
+  birthDate      DateTime         @map("birth_date") @db.Date
+  mobilePhone    String           @map("mobile_phone")
+  phone          String?
+  email          String?
+  address        String
+  residenceCity  String           @map("residence_city")
+  shirtSize      String?          @map("shirt_size")
+  pantsSize      String?          @map("pants_size")
+  shoeSize       String?          @map("shoe_size")
+  memberNumber   Int              @unique @default(autoincrement()) @map("member_number")
+  joinedOn       DateTime         @map("joined_on") @db.Date
+  profileId      String           @map("profile_id") @db.Uuid
+  status         MemberStatus     @default(ACTIVE)
+  notes          String?
+  createdById    String           @map("created_by_id") @db.Uuid
+  createdAt      DateTime         @default(now()) @map("created_at")
+  updatedAt      DateTime         @updatedAt @map("updated_at")
+  profile        MembershipProfile @relation(fields: [profileId], references: [id], onDelete: Restrict)
+  createdBy      User             @relation(fields: [createdById], references: [id], onDelete: Restrict)
+  fees           Fee[]
+  deliveries     BenefitDelivery[]
+
+  @@unique([documentType, documentNumber])
+  @@index([status])
+  @@index([profileId])
+  @@index([lastNames])
+  @@map("members")
+}
+
+model Fee {
+  id                      String         @id @default(uuid()) @db.Uuid
+  memberId                String         @map("member_id") @db.Uuid
+  type                    FeeType
+  periodYear              Int?           @map("period_year")
+  periodMonth             Int?           @map("period_month")
+  minimumWageUsed         Int            @map("minimum_wage_used")
+  profilePercent          Decimal        @map("profile_percent") @db.Decimal(6, 2)
+  baseAmount              Int            @map("base_amount")
+  isReduced               Boolean        @default(false) @map("is_reduced")
+  reductionPercent        Decimal?       @map("reduction_percent") @db.Decimal(6, 2)
+  dueDate                 DateTime       @map("due_date") @db.Date
+  dueLimit                DateTime       @map("due_limit") @db.Date
+  status                  FeeStatus
+  paidOn                  DateTime?      @map("paid_on") @db.Date
+  paymentMethodId         String?        @map("payment_method_id") @db.Uuid
+  paymentNote             String?        @map("payment_note")
+  paidById                String?        @map("paid_by_id") @db.Uuid
+  paidAt                  DateTime?      @map("paid_at")
+  monthsLateCharged       Int?           @map("months_late_charged")
+  surchargePercentApplied Decimal?       @map("surcharge_percent_applied") @db.Decimal(6, 2)
+  surchargeAmount         Int?           @map("surcharge_amount")
+  totalPaid               Int?           @map("total_paid")
+  createdAt               DateTime       @default(now()) @map("created_at")
+  member                  Member         @relation(fields: [memberId], references: [id], onDelete: Restrict)
+  paymentMethod           PaymentMethod? @relation(fields: [paymentMethodId], references: [id], onDelete: Restrict)
+  paidBy                  User?          @relation(fields: [paidById], references: [id], onDelete: Restrict)
+
+  @@unique([memberId, periodYear, periodMonth])
+  @@index([status])
+  @@index([periodYear, periodMonth])
+  @@index([memberId, status])
+  @@map("fees")
+}
+
+model BenefitDelivery {
+  id            String    @id @default(uuid()) @db.Uuid
+  memberId      String    @map("member_id") @db.Uuid
+  benefitId     String    @map("benefit_id") @db.Uuid
+  year          Int
+  deliveredOn   DateTime  @map("delivered_on") @db.Date
+  deliveredById String    @map("delivered_by_id") @db.Uuid
+  isException   Boolean   @default(false) @map("is_exception")
+  note          String?
+  isVoided      Boolean   @default(false) @map("is_voided")
+  voidedById    String?   @map("voided_by_id") @db.Uuid
+  voidedAt      DateTime? @map("voided_at")
+  voidNote      String?   @map("void_note")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  member        Member    @relation(fields: [memberId], references: [id], onDelete: Restrict)
+  benefit       Benefit   @relation(fields: [benefitId], references: [id], onDelete: Restrict)
+  deliveredBy   User      @relation("DeliveredBy", fields: [deliveredById], references: [id], onDelete: Restrict)
+  voidedBy      User?     @relation("VoidedBy", fields: [voidedById], references: [id], onDelete: Restrict)
+
+  @@index([memberId, benefitId, year, isVoided])
+  @@map("benefit_deliveries")
+}
+
+model AuditLog {
+  id       String   @id @default(uuid()) @db.Uuid
+  at       DateTime @default(now())
+  userId   String?  @map("user_id") @db.Uuid
+  entity   String
+  entityId String   @map("entity_id")
+  action   String
+  detail   Json
+  note     String?
+  user     User?    @relation(fields: [userId], references: [id], onDelete: Restrict)
+
+  @@index([entity, entityId])
+  @@index([at])
+  @@map("audit_logs")
+}

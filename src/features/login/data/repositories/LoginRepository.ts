@@ -29,4 +29,15 @@ export class LoginRepository {
       {},
     );
   }
+
+  async changePassword(payload: {
+    currentPassword: string;
+    newPassword: string;
+  }): Promise<unknown> {
+    return await this._httpRequestProvider.post<AxiosResponse<unknown>>(
+      '/auth/password',
+      payload,
+      {},
+    );
+  }
 }

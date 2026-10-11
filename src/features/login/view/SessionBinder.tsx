@@ -12,20 +12,14 @@ import { bindLoginSessionPort } from '@/features/login/session/bindSessionPort';
 export function SessionBinder({ children }: { children: React.ReactNode }) {
   bindLoginSessionPort();
 
-  const userEmail = useUserStore((state) => state.user?.email);
   const setUser = useUserStore((state) => state.setUser);
   const clearUser = useUserStore((state) => state.clearUser);
   const setSessionStatus = useUserStore((state) => state.setSessionStatus);
-  const validatedUserEmail = useRef<string | null>(null);
+  const started = useRef(false);
 
   useEffect(() => {
-    if (!userEmail) {
-      validatedUserEmail.current = null;
-      setSessionStatus('ready');
-      return;
-    }
-
-    if (validatedUserEmail.current === userEmail) return;
+    if (started.current) return;
+    started.current = true;
 
     let cancelled = false;
     setSessionStatus('checking');
@@ -36,15 +30,12 @@ export function SessionBinder({ children }: { children: React.ReactNode }) {
         const confirmed = port ? await port.revalidateCurrentUser() : null;
         if (cancelled) return;
         if (!confirmed?.email) {
-          validatedUserEmail.current = null;
           clearUser();
           return;
         }
-        validatedUserEmail.current = confirmed.email;
         setUser(confirmed);
       } catch {
         if (cancelled) return;
-        validatedUserEmail.current = null;
         clearUser();
       }
     };
@@ -54,7 +45,7 @@ export function SessionBinder({ children }: { children: React.ReactNode }) {
     return () => {
       cancelled = true;
     };
-  }, [userEmail, setUser, clearUser, setSessionStatus]);
+  }, [setUser, clearUser, setSessionStatus]);
 
   return <>{children}</>;
 }

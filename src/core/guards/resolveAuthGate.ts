@@ -1,17 +1,11 @@
 export const PUBLIC_ROUTES = ['/login', '/'];
-
-/**
- * Routes that require a session. Empty in this template so guests can browse.
- * A product can list paths here (or mark the menu item with status `R`)
- * for screens that require a signed-in user.
- */
-export const AUTH_REQUIRED_ROUTES: readonly string[] = [];
+export const CHANGE_PASSWORD_ROUTE = '/cambiar-clave';
 
 export type SessionStatus = 'unknown' | 'checking' | 'ready';
 
 export type AuthGateDecision =
   | { allow: true }
-  | { allow: false; reason: 'wait' | 'redirect-login' };
+  | { allow: false; reason: 'wait' | 'redirect-login' | 'redirect-password' };
 
 export function normalizePathname(pathname: string | null | undefined): string {
   if (!pathname) return '';
@@ -21,32 +15,24 @@ export function normalizePathname(pathname: string | null | undefined): string {
   return pathname;
 }
 
-export function isAuthRequiredPath(
-  pathname: string | null | undefined,
-  authRequiredRoutes: readonly string[] = AUTH_REQUIRED_ROUTES,
-): boolean {
+export function isPublicPath(pathname: string | null | undefined): boolean {
   const path = normalizePathname(pathname);
-  return authRequiredRoutes.some(
-    (route) => path === route || path.startsWith(`${route}/`),
-  );
+  return PUBLIC_ROUTES.includes(path);
 }
 
-/**
- * Pure guard decision: no I/O. Remote revalidation happens in login
- * (SessionBinder) and writes the result to the store.
- *
- * In this template routes are public except `authRequiredRoutes`.
- */
+export function isAuthRequiredPath(pathname: string | null | undefined): boolean {
+  return !isPublicPath(pathname);
+}
+
 export function resolveAuthGate(input: {
   pathname: string | null | undefined;
   userEmail?: string | null;
   sessionStatus: SessionStatus;
-  authRequiredRoutes?: readonly string[];
+  mustChangePassword?: boolean;
 }): AuthGateDecision {
   const path = normalizePathname(input.pathname);
-  const requiredRoutes = input.authRequiredRoutes ?? AUTH_REQUIRED_ROUTES;
 
-  if (!isAuthRequiredPath(path, requiredRoutes)) {
+  if (isPublicPath(path)) {
     return { allow: true };
   }
 
@@ -56,6 +42,10 @@ export function resolveAuthGate(input: {
 
   if (!input.userEmail) {
     return { allow: false, reason: 'redirect-login' };
+  }
+
+  if (input.mustChangePassword && path !== CHANGE_PASSWORD_ROUTE) {
+    return { allow: false, reason: 'redirect-password' };
   }
 
   return { allow: true };
