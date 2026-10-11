@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { ChangeEvent, FormEvent } from 'react';
 import { useUserStore } from '@/core/store/useUserStore';
+import { EMPTY_PERMISSIONS } from '@/core/store/userPermissions';
 import { useSessionStore } from '@/core/store/useSessionStore';
 import { UsersService } from '../domain/usersService';
 import {
@@ -29,7 +30,7 @@ export function useUsersViewModel() {
   const service = useMemo(() => new UsersService(), []);
   const currentUser = useUserStore((state) => state.user);
   const setUser = useUserStore((state) => state.setUser);
-  const permissions = currentUser?.permissions ?? [];
+  const permissions = currentUser?.permissions ?? EMPTY_PERMISSIONS;
   const setToast = useSessionStore((state) => state.setToast);
   const setLoading = useSessionStore((state) => state.setLoading);
   const canManage = permissions.includes('users.manage');

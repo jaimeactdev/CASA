@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { ChangeEvent, FormEvent } from 'react';
 import { useUserStore } from '@/core/store/useUserStore';
+import { selectUserPermissions } from '@/core/store/userPermissions';
 import { useSessionStore } from '@/core/store/useSessionStore';
 import {
   buildFeePreview,
@@ -33,7 +34,7 @@ function errorMessage(error: unknown, fallback: string): string {
 
 export function useSettingsViewModel() {
   const service = useMemo(() => new SettingsService(), []);
-  const permissions = useUserStore((state) => state.user?.permissions ?? []);
+  const permissions = useUserStore(selectUserPermissions);
   const setToast = useSessionStore((state) => state.setToast);
   const setLoading = useSessionStore((state) => state.setLoading);
   const canEdit = permissions.includes('settings.edit');

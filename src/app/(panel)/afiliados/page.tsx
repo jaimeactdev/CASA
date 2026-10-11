@@ -1,10 +1,11 @@
-import { ModulePlaceholder } from '@/shared/ui/ModulePlaceholder';
+import MembersView from '@/features/members/view/MembersView';
+import { appConfig } from '@/config/appConfig';
+
+export const metadata = {
+  title: `Afiliados | ${appConfig.name}`,
+  robots: 'noindex, nofollow',
+};
 
 export default function Page() {
-  return (
-    <ModulePlaceholder
-      title="Afiliados"
-      description="El registro de afiliados se construye en el módulo 5."
-    />
-  );
+  return <MembersView />;
 }

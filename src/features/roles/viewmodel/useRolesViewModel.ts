@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import type { ChangeEvent, FormEvent } from 'react';
 import { useUserStore } from '@/core/store/useUserStore';
+import { selectUserPermissions } from '@/core/store/userPermissions';
 import { useSessionStore } from '@/core/store/useSessionStore';
 import { RolesService } from '../domain/rolesService';
 import {
@@ -22,7 +23,7 @@ function errorMessage(error: unknown, fallback: string): string {
 
 export function useRolesViewModel() {
   const service = useMemo(() => new RolesService(), []);
-  const permissions = useUserStore((state) => state.user?.permissions ?? []);
+  const permissions = useUserStore(selectUserPermissions);
   const setToast = useSessionStore((state) => state.setToast);
   const setLoading = useSessionStore((state) => state.setLoading);
   const canManage = permissions.includes('roles.manage');
