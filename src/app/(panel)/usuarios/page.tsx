@@ -1,10 +1,11 @@
-import { ModulePlaceholder } from '@/shared/ui/ModulePlaceholder';
+import UsersView from '@/features/users/view/UsersView';
+import { appConfig } from '@/config/appConfig';
+
+export const metadata = {
+  title: `Usuarios | ${appConfig.name}`,
+  robots: 'noindex, nofollow',
+};
 
 export default function Page() {
-  return (
-    <ModulePlaceholder
-      title="Usuarios"
-      description="La administración de usuarios se construye en el módulo 3."
-    />
-  );
+  return <UsersView />;
 }

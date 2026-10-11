@@ -13,28 +13,29 @@ Un archivo por módulo (`11_feature_docs_standard.md`, ADR-005). **No** se escri
 ## Prompt para pegar en el siguiente chat
 
 ```text
-Continúa CASA en el módulo 3 (usuarios y roles). No reescribas los módulos 0, 1 ni 2.
+Continúa CASA en el módulo 4 (perfiles y catálogo de beneficios). No reescribas los módulos 0, 1, 2 ni 3.
 
 Antes de implementar, carga en este orden:
 AGENTS.md, docs/REQUERIMIENTOS.md, docs/prompts/1_project_context.md,
 docs/prompts/2_architecture_rules.md, docs/prompts/3_development_workflow.md,
 docs/prompts/4_documentation_workflow.md, docs/prompts/5_feature_generator.md,
 docs/architecture.md, docs/ui-kit.md, docs/features/README.md,
-docs/features/settings.md.
+docs/features/users.md.
 
 Node: nvm use 22 (el default de la máquina es 18). Sin git salvo que lo pida
 en el mismo turno. Responde en español (Colombia).
 
-Construye el módulo 3 completo según REQUERIMIENTOS §6, §9.5–§9.7, §10.8,
-§12 (bitácora user.* y role.permissions_change) y §13: /usuarios y /roles
-(hoy son ModulePlaceholder). API: /api/users, /api/roles, /api/permissions.
-Roles de sistema Administrador y Operativo: no se eliminan ni se desactivan.
-Nadie se quita a sí mismo el rol Administrador ni se desactiva. Al asignar
-clave, mustChangePassword = true. Kit: DatatableLocal, shared/ui/mui,
-ConfirmRecordActionModal, AppDialog. Sin fórmulas nuevas en src/rules.
+Construye el módulo 4 completo según REQUERIMIENTOS §8.6 (catálogo, no la
+entrega), §9.8–§9.9, §10.6 (solo el catálogo), §10.7 y §13: /perfiles y
+/beneficios (hoy son ModulePlaceholder). API: /api/profiles y /api/benefits.
+No borres perfiles ni beneficios: se desactivan. El perfil inactivo no se
+asigna a afiliados nuevos. El anual queda con máximo 1. La entrega, la
+excepción y la anulación son el módulo 7: no las abras.
+Kit: DatatableLocal, shared/ui/mui, ConfirmRecordActionModal, AppDialog.
+Sin fórmulas nuevas en src/rules: la cuota del perfil usa las que ya existen.
 
-Al cerrar: lint + test en Node 22, docs/features/users.md (o el nombre del
-feature) y actualizar este README. El módulo 2 quedó listo y sin commit;
+Al cerrar: lint + test en Node 22, docs/features/profiles.md (y benefits si
+hace falta) y actualizar este README. El módulo 3 quedó listo en código;
 no lo reabras salvo un bug.
 ```
 
@@ -44,9 +45,9 @@ no lo reabras salvo un bug.
 |---|---|---|---|
 | 0 | Base (Prisma, semilla, sesión, login, menú) | [base.md](./base.md) | Listo y commiteado |
 | 1 | Reglas (`src/rules`) | [rules.md](./rules.md) | Listo y commiteado |
-| 2 | Parámetros y medios de pago | [settings.md](./settings.md) | Listo (código + pruebas). Sin commit. Recorrido UI con sesión pendiente |
-| 3 | Usuarios y roles | — | **Siguiente** |
-| 4 | Perfiles y beneficios (catálogo) | — | Pendiente. Ahí se edita el % del perfil (1,70% del General) |
+| 2 | Parámetros y medios de pago | [settings.md](./settings.md) | Listo y en `origin/jact` (`1a79e46`) |
+| 3 | Usuarios y roles | [users.md](./users.md) | Listo (código + pruebas). Sin commit. Recorrido UI con sesión pendiente |
+| 4 | Perfiles y beneficios (catálogo) | — | **Siguiente** |
 | 5 | Afiliados | — | Pendiente |
 | 6 | Cuotas y pagos | — | Pendiente |
 | 7 | Entregas | — | Pendiente |
@@ -54,49 +55,49 @@ no lo reabras salvo un bug.
 | 9 | Página pública | — | Pendiente |
 
 Commit que cierra 0+1 (rama `jact`): `Cerrar base y reglas: sesión propia y fórmulas de cuota.`
-El módulo 2 aún no está en git hasta que lo pidan.
+El módulo 2 está en `origin/jact` en `1a79e46`. El módulo 3 aún no está en git hasta que lo pidan.
 
 ## Qué no tocar
 
 - Módulo 0: Prisma, `0001_init`, semilla, `/api/auth/*`, cookie `casa_session`, `/login`, `/cambiar-clave`, `middleware.ts`, menú por permisos.
 - Módulo 1: `src/rules/{money,calendar,fees,benefits}.ts` y sus pruebas.
-- Módulo 2: `src/server/modules/settings`, `src/features/settings`, `/api/settings`, `/api/payment-methods`, `/parametros`. Solo un bug o el recorrido con sesión.
+- Módulo 2: `src/server/modules/settings`, `src/features/settings`, `/api/settings`, `/api/payment-methods`, `/parametros`.
+- Módulo 3: `src/server/modules/users`, `src/server/modules/roles`, `src/features/users`, `src/features/roles`, `/api/users`, `/api/roles`, `/api/permissions`, `/usuarios`, `/roles`. Solo un bug o el recorrido con sesión.
 
-## Módulo 2 — archivos (cerrado)
+## Módulo 3 — archivos (cerrado)
 
 ```
-src/server/modules/settings/     schema, repository, service + pruebas
-src/app/api/settings/route.ts
-src/app/api/payment-methods/route.ts
-src/app/api/payment-methods/[id]/route.ts
-src/features/settings/           data → domain → viewmodel → view
-src/app/(panel)/parametros/page.tsx
-src/core/network/httpRequestProvider.ts   +patch y 409
-src/shared/ui/DatatableLocal.tsx          +'use client'
-src/shared/ui/mui/InputFieldMUI.tsx       wrapper width 100%
+src/server/modules/users/        schema, repository, service + pruebas
+src/server/modules/roles/        schema, repository, service + pruebas
+src/app/api/users/route.ts
+src/app/api/users/[id]/route.ts
+src/app/api/roles/route.ts
+src/app/api/roles/[id]/route.ts
+src/app/api/permissions/route.ts
+src/features/users/              data → domain → viewmodel → view
+src/features/roles/              data → domain → viewmodel → view
+src/app/(panel)/usuarios/page.tsx
+src/app/(panel)/roles/page.tsx
 ```
 
-Permisos: `settings.view` / `settings.edit`. El operativo **no** los tiene.
-GET settings incluye perfiles activos solo para la preview. El 1,70% no es parámetro global.
+Permisos: `users.view` / `users.manage` y `roles.view` / `roles.manage`. El operativo no los tiene.
+Sin migración. La clave no sale de la API. Al asignarla, `mustChangePassword = true`.
 
-## Deuda conocida (no bloquea el módulo 3)
+## Deuda conocida (no bloquea el módulo 4)
 
-- Recorrido de `/parametros` con sesión: el login del admin respondió 400; falta sembrar o definir `ADMIN_EMAIL` / `ADMIN_PASSWORD` en `.env.local`. El navegador embebido no resuelve `localhost`; usar `http://127.0.0.1:4200`.
+- Recorrido de `/usuarios`, `/roles` y `/parametros` con sesión: sin cookie el panel cae en `/login`. Falta sembrar o definir `ADMIN_EMAIL` / `ADMIN_PASSWORD` en `.env.local` si el ingreso sigue en 400. El navegador embebido usa `http://127.0.0.1:4200`.
 - Dev a veces ya está en el puerto 4200 (`EADDRINUSE`): no levantar otro.
 
-## Módulo 3 — punto de partida
+## Módulo 4 — punto de partida
 
-- Rutas: `/usuarios`, `/roles` (hoy son `ModulePlaceholder`).
-- API: `/api/users`, `/api/roles`, `/api/permissions` (§5.5).
-- Modelos ya en Prisma: `User`, `Role`, `Permission`, `RolePermission`. Sin migración nueva.
-- Roles de sistema Administrador y Operativo (`isSystem`): no se eliminan ni se desactivan.
-- Nadie se quita a sí mismo el rol Administrador ni se desactiva.
-- Al asignar clave, `mustChangePassword = true`. Correo único. Clave mínimo 8. Usuario inactivo no entra y no se borra.
-- Bitácora: `user.create`, `user.update`, `user.deactivate`, `user.role_change`, `user.password_reset`, `role.permissions_change`.
-- Feature sugerido: `users` y `roles` (o un módulo `access` si se quiere un solo servidor; el requerimiento los trata juntos).
+- Rutas: `/perfiles`, `/beneficios` (hoy son `ModulePlaceholder`). Las entregas (`/beneficios/entregas`) son el módulo 7.
+- API: `/api/profiles`, `/api/benefits` (§5.5). No hay borrado físico.
+- Modelos ya en Prisma: `MembershipProfile`, `Benefit`, `ProfileBenefit`. Sin migración nueva salvo que el esquema no alcance.
+- Perfil: nombre, porcentaje (> 0 y ≤ 100), activo, beneficios del catálogo. La cuota mostrada es la plena con el SMMLV actual (`quoteFullFee`). El inactivo no se asigna a afiliados nuevos.
+- Beneficio: campos de §9.9. Anual: `maxDeliveriesPerYear` siempre 1. Eventual: 1 a 12. `isPublic` exige texto público.
+- Permisos: `profiles.view` / `profiles.manage`, `benefits.view` / `benefits.manage`. El operativo ve perfiles y no administra el catálogo.
 - Kit: `DatatableLocal`, `shared/ui/mui`, `ConfirmRecordActionModal`, `AppDialog`.
 - No hay reglas nuevas en `src/rules`.
-- Permisos: `users.view` / `users.manage`, `roles.view` / `roles.manage`. El operativo no los tiene.
 
 ## Comandos
 
