@@ -1,10 +1,10 @@
 # Reglas
 
 - Requerimiento: REQUERIMIENTOS.md §5.7, §7.1, §8, §13 módulo 1
-- Estado: listo (el servidor aún no las consume)
+- Estado: listo. El módulo 2 ya consume `quoteFullFee` y `applyPercent` en la preview de `/parametros`. El resto de consumidores llega con cuotas, afiliados y beneficios.
 
 ## Qué resuelve
-Deja las fórmulas de dinero, calendario de Colombia, cuota, recargo y elegibilidad de beneficios en `src/rules`, puras y con pruebas. El valor que se guarda lo calculará el servidor cuando existan esos módulos.
+Deja las fórmulas de dinero, calendario de Colombia, cuota, recargo y elegibilidad de beneficios en `src/rules`, puras y con pruebas. El valor que se guarda lo calcula el servidor cuando el caso lo pide.
 
 ## Pantallas
 Ninguna. Este módulo no tiene UI.

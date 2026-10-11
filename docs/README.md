@@ -16,6 +16,7 @@ estas reglas es deuda: no se copia.
 | [BRANDING.md](./BRANDING.md) | Nombre, logos y color |
 | [session-timeout-implementation.md](./session-timeout-implementation.md) | Timeout de inactividad |
 | `features/<modulo>.md` | Un resumen por módulo construido |
+| [features/README.md](./features/README.md) | Traza de módulos y cómo continuar en otro chat |
 
 Arranque del repo: [README](../README.md).
 

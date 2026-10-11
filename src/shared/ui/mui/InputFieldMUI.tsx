@@ -319,6 +319,7 @@ const InputFieldMUI = forwardRef<HTMLInputElement, InputFieldProps>(
             display="flex"
             alignItems="center"
             sx={{
+              width: "100%",
               "&:focus-within .icon-box": {
                 borderColor: error
                   ? theme.palette.error.main

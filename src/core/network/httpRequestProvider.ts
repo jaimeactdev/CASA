@@ -82,6 +82,12 @@ class HttpRequestProvider {
           };
         case 404:
           throw { ...data, message: data.message ?? 'Error 404: Recurso no encontrado' };
+        case 409:
+          throw {
+            ...data,
+            status: 409,
+            message: data.message ?? 'La operación entra en conflicto con un dato existente.',
+          };
         case 500:
           throw { ...data, message: data.message ?? 'Ha ocurrido un error procesando la solicitud...' };
         case 502:
@@ -138,6 +144,13 @@ class HttpRequestProvider {
 
   async put<T = any>(url: string, data: any, config: AxiosRequestConfig = {}): Promise<T> {
     return this.axiosInstance.put(url, data, {
+      ...config,
+      headers: { Accept: 'application/json', ...(config.headers || {}) },
+    }) as Promise<T>;
+  }
+
+  async patch<T = any>(url: string, data: any, config: AxiosRequestConfig = {}): Promise<T> {
+    return this.axiosInstance.patch(url, data, {
       ...config,
       headers: { Accept: 'application/json', ...(config.headers || {}) },
     }) as Promise<T>;
