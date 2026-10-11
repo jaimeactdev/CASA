@@ -1,10 +1,11 @@
-import { ModulePlaceholder } from '@/shared/ui/ModulePlaceholder';
+import ProfilesView from '@/features/profiles/view/ProfilesView';
+import { appConfig } from '@/config/appConfig';
+
+export const metadata = {
+  title: `Perfiles | ${appConfig.name}`,
+  robots: 'noindex, nofollow',
+};
 
 export default function Page() {
-  return (
-    <ModulePlaceholder
-      title="Perfiles"
-      description="Los perfiles de afiliación se construyen en el módulo 4."
-    />
-  );
+  return <ProfilesView />;
 }

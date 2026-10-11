@@ -1,10 +1,11 @@
-import { ModulePlaceholder } from '@/shared/ui/ModulePlaceholder';
+import BenefitsView from '@/features/benefits/view/BenefitsView';
+import { appConfig } from '@/config/appConfig';
+
+export const metadata = {
+  title: `Beneficios | ${appConfig.name}`,
+  robots: 'noindex, nofollow',
+};
 
 export default function Page() {
-  return (
-    <ModulePlaceholder
-      title="Beneficios"
-      description="El catálogo de beneficios se construye en el módulo 4."
-    />
-  );
+  return <BenefitsView />;
 }
