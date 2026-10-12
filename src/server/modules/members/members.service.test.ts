@@ -11,6 +11,11 @@ const createMemberRecord = vi.fn();
 const createFeeRecord = vi.fn();
 const createAuditLog = vi.fn();
 const updateMemberRecord = vi.fn();
+const ensureFeesUpToDate = vi.fn();
+
+vi.mock('@/server/modules/fees/fees.service', () => ({
+  ensureFeesUpToDate: (...args: unknown[]) => ensureFeesUpToDate(...args),
+}));
 
 vi.mock('@/server/db/prisma', () => ({
   prisma: {
@@ -34,6 +39,7 @@ vi.mock('./members.repository', () => ({
 import {
   assertCanEnroll,
   createMember,
+  getMember,
   MINIMUM_WAGE_REQUIRED_MESSAGE,
   updateMember,
 } from './members.service';
@@ -268,5 +274,67 @@ describe('updateMember', () => {
       expect.objectContaining({ action: 'member.update' }),
       expect.anything(),
     );
+  });
+});
+
+describe('getMember', () => {
+  beforeEach(() => {
+    findSettings.mockReset();
+    findMember.mockReset();
+    ensureFeesUpToDate.mockReset();
+    ensureFeesUpToDate.mockResolvedValue({
+      created: 0,
+      markedOverdue: 0,
+      today: '2026-12-01',
+    });
+    findSettings.mockResolvedValue({
+      ...settings,
+      surchargePercent: new Prisma.Decimal('0.50'),
+    });
+  });
+
+  it('shows the live surcharge of an unpaid October fee in December', async () => {
+    findMember.mockResolvedValue(
+      memberRow({
+        profile: { ...profile, benefits: [] },
+        fees: [
+          {
+            id: 'fee-oct',
+            type: 'MONTHLY',
+            periodYear: 2026,
+            periodMonth: 10,
+            minimumWageUsed: 1_000_000,
+            profilePercent: new Prisma.Decimal('1.70'),
+            baseAmount: 17_000,
+            isReduced: false,
+            reductionPercent: null,
+            dueDate: new Date('2026-10-31T00:00:00.000Z'),
+            dueLimit: new Date('2026-11-03T00:00:00.000Z'),
+            status: 'PENDING',
+            paidOn: null,
+            paymentNote: null,
+            monthsLateCharged: null,
+            surchargePercentApplied: null,
+            surchargeAmount: null,
+            totalPaid: null,
+            paymentMethod: null,
+          },
+        ],
+      }),
+    );
+
+    const detail = await getMember(
+      memberId,
+      new Date('2026-12-01T17:00:00.000Z'),
+      'user-1',
+    );
+
+    expect(ensureFeesUpToDate).toHaveBeenCalled();
+    expect(detail.fees[0]).toMatchObject({
+      status: 'OVERDUE',
+      surchargeAmount: 10_000,
+      total: 27_000,
+    });
+    expect(detail.inArrears).toBe(true);
   });
 });

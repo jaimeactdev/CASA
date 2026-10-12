@@ -14,6 +14,11 @@ function isPublicApi(pathname: string) {
   );
 }
 
+/** The cron route checks CRON_SECRET itself. It has no session cookie. */
+function isCronApi(pathname: string) {
+  return pathname === '/api/cron/fees';
+}
+
 function isStaticAsset(pathname: string) {
   return (
     pathname.startsWith('/_next') ||
@@ -36,7 +41,12 @@ export async function middleware(request: NextRequest) {
   }
 
   const { pathname } = request.nextUrl;
-  if (isStaticAsset(pathname) || isPublicPage(pathname) || isPublicApi(pathname)) {
+  if (
+    isStaticAsset(pathname) ||
+    isPublicPage(pathname) ||
+    isPublicApi(pathname) ||
+    isCronApi(pathname)
+  ) {
     return NextResponse.next();
   }
 

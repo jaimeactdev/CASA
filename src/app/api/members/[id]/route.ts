@@ -11,13 +11,13 @@ export async function GET(
   context: { params: Promise<{ id: string }> },
 ) {
   try {
-    await requirePermission('members.view');
+    const session = await requirePermission('members.view');
     const { id } = await context.params;
     const idParsed = memberIdSchema.safeParse(id);
     if (!idParsed.success) {
       return jsonError(400, 'El afiliado no es válido.');
     }
-    return jsonOk(await getMember(idParsed.data));
+    return jsonOk(await getMember(idParsed.data, new Date(), session.id));
   } catch (error) {
     return handleRouteError(error);
   }

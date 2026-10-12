@@ -43,7 +43,7 @@ Sin fórmulas nuevas. Usa `quoteMonthlyFee`, `quoteFullFee`, `periodDates`, `can
 - Un feature `members` y un módulo de servidor. La página reemplaza el `ModulePlaceholder`.
 - El listado filtra en el cliente (cientos de afiliados). Excel usa las columnas de §10.10.
 - La ficha lee `GET /api/members/[id]`. Los beneficios se evalúan ahí para mostrar mínimo, recepción y bloqueo del paseo; no hay botón de entrega.
-- `ensureFeesUpToDate` y el registro de pagos quedan para el módulo 6.
+- Al abrir la ficha, `GET /api/members/[id]` ejecuta `ensureFeesUpToDate` (módulo 6) y el recargo de las cuotas sin pagar se calcula con `src/rules`. El registro del pago está en `/pagos`.
 - El alta siempre nace Activo. El estado se cambia en la edición.
 
 ## Verificación
@@ -57,4 +57,4 @@ Sin fórmulas nuevas. Usa `quoteMonthlyFee`, `quoteFullFee`, `periodDates`, `can
 
 ## Cómo retomar
 
-El índice está en `docs/features/README.md`. Siguiente módulo: **6 Cuotas y pagos**. No reabrir este módulo salvo un bug o el recorrido con sesión.
+El índice está en `docs/features/README.md`. Siguiente módulo: **6 Cuotas y pagos**, ya cerrado. No reabrir este módulo salvo un bug o el recorrido con sesión.

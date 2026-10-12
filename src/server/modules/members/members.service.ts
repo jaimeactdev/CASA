@@ -16,6 +16,7 @@ import {
   periodDates,
   quoteFullFee,
   quoteMonthlyFee,
+  resolveFeeCharge,
   sumTotalPaid,
   type PaidFeeSnapshot,
 } from '@/rules/fees';
@@ -26,6 +27,7 @@ import {
 } from '@/rules/money';
 import { prisma } from '@/server/db/prisma';
 import { HttpError } from '@/server/http/errors';
+import { ensureFeesUpToDate } from '@/server/modules/fees/fees.service';
 import {
   createAuditLog,
   createFeeRecord,
@@ -256,13 +258,29 @@ function toListDto(
   };
 }
 
-function toFeeDto(row: MemberDetailRow['fees'][number]): MemberFeeDto {
-  const surchargeAmount =
-    row.status === 'PAID' ? (row.surchargeAmount ?? 0) : 0;
-  const total =
-    row.status === 'PAID'
-      ? (row.totalPaid ?? row.baseAmount + surchargeAmount)
-      : row.baseAmount + surchargeAmount;
+function toFeeDto(
+  row: MemberDetailRow['fees'][number],
+  today: CalendarDate,
+  surchargePercent: Prisma.Decimal,
+): MemberFeeDto {
+  const isPaid = row.status === 'PAID';
+  const charge = resolveFeeCharge({
+    type: row.type,
+    isPaid,
+    baseAmount: row.baseAmount,
+    dueLimit: parseIsoDate(dateToIso(row.dueLimit)),
+    today,
+    periodYear: row.periodYear,
+    periodMonth: row.periodMonth,
+    minimumWageUsed: row.minimumWageUsed,
+    surchargePercent: toPercentHundredths(surchargePercent),
+    frozen: isPaid
+      ? {
+          monthsLateCharged: row.monthsLateCharged ?? 0,
+          surchargeAmount: row.surchargeAmount ?? 0,
+        }
+      : null,
+  });
   return {
     id: row.id,
     type: row.type,
@@ -273,13 +291,13 @@ function toFeeDto(row: MemberDetailRow['fees'][number]): MemberFeeDto {
     reductionPercent: row.reductionPercent
       ? decimalText(row.reductionPercent)
       : null,
-    status: row.status,
+    status: charge.status,
     dueDate: dateToIso(row.dueDate),
     dueLimit: dateToIso(row.dueLimit),
     paidOn: row.paidOn ? dateToIso(row.paidOn) : null,
     paymentMethodName: row.paymentMethod?.name ?? null,
-    surchargeAmount,
-    total,
+    surchargeAmount: charge.surcharge,
+    total: charge.total,
   };
 }
 
@@ -324,18 +342,23 @@ function toBenefitDtos(
 
 function toDetailDto(
   row: MemberDetailRow,
-  settings: Pick<SettingsRow, 'minimumWage'>,
+  settings: SettingsRow,
   year: number,
+  today: CalendarDate,
 ): MemberDetailDto {
+  const fees = row.fees.map((fee) =>
+    toFeeDto(fee, today, settings.surchargePercent),
+  );
   return {
     ...toListDto(row, settings.minimumWage, year),
+    inArrears: isMemberInArrears(fees),
     createdByName: row.createdBy.name,
     currentFeeQuote: {
       minimumWage: settings.minimumWage,
       profilePercent: decimalText(row.profile.percent),
       fullFee: currentFeeOf(settings.minimumWage, row.profile.percent),
     },
-    fees: row.fees.map(toFeeDto),
+    fees,
     benefits: toBenefitDtos(row, year),
   };
 }
@@ -559,11 +582,13 @@ export async function getMembersPage(now = new Date()): Promise<MembersPageDto> 
 export async function getMember(
   id: string,
   now = new Date(),
+  actorId: string | null = null,
 ): Promise<MemberDetailDto> {
+  await ensureFeesUpToDate(now, { actorId, source: 'request' });
   const today = todayInBogota(now);
   const [settings, row] = await Promise.all([requireSettings(), findMember(id)]);
   if (!row) throw new HttpError(404, 'Ese afiliado no existe.');
-  return toDetailDto(row, settings, today.year);
+  return toDetailDto(row, settings, today.year, today);
 }
 
 export async function createMember(
