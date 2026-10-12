@@ -25,7 +25,7 @@ docs/features/deliveries.md.
 Node: nvm use 22 (el default de la máquina es 18). Sin git salvo que lo pida
 en el mismo turno. Responde en español (Colombia).
 
-El módulo 6 sigue cerrado en a0b7bf1. El módulo 7 quedó cerrado en jact
+El módulo 6 sigue cerrado en a0b7bf1. El módulo 7 quedó cerrado en 699abb9
 (entregas y menú: no se expande al pasar el cursor; Beneficios navega a
 /beneficios y la flecha abre Entregas). No reabras los módulos 0 a 7 salvo
 un bug.
@@ -53,12 +53,12 @@ Al cerrar: lint + test en Node 22, el documento del módulo según
 | 4 | Perfiles y catálogo de beneficios | [profiles.md](./profiles.md) | Listo y en `jact`. Recorrido UI con sesión pendiente |
 | 5 | Afiliados | [members.md](./members.md) | Listo en `jact`. Recorrido UI con sesión pendiente |
 | 6 | Cuotas y pagos | [fees.md](./fees.md) | Cerrado en `a0b7bf1`. Recorrido UI con sesión pendiente |
-| 7 | Entregas | [deliveries.md](./deliveries.md) | Cerrado en `jact`. Recorrido UI con sesión pendiente |
+| 7 | Entregas | [deliveries.md](./deliveries.md) | Cerrado en `699abb9`. Recorrido UI con sesión pendiente |
 | 8 | Inicio | — | **Siguiente** |
 | 9 | Página pública | — | Pendiente |
 
 Commit que cierra 0+1 (rama `jact`): `Cerrar base y reglas: sesión propia y fórmulas de cuota.`
-El módulo 2 está en `origin/jact` en `1a79e46`. El módulo 3 está en `47fc5e8`. El módulo 4 cierra en `12a4157`. El módulo 5 cierra en `ab45f24`. El módulo 6 queda cerrado en `a0b7bf1`, rama `jact`. El módulo 7 cierra en `jact`.
+El módulo 2 está en `origin/jact` en `1a79e46`. El módulo 3 está en `47fc5e8`. El módulo 4 cierra en `12a4157`. El módulo 5 cierra en `ab45f24`. El módulo 6 queda cerrado en `a0b7bf1`, rama `jact`. El módulo 7 cierra en `699abb9`.
 
 ## Qué no tocar
 
