@@ -7,10 +7,15 @@ import { selectUserPermissions } from '@/core/store/userPermissions';
 import { useSessionStore } from '@/core/store/useSessionStore';
 import { MembersService } from '../domain/membersService';
 import {
+  deliveryMode,
+  emptyBenefitDeliveryForm,
   emptyMemberForm,
   formValuesFromMember,
   matchesMemberSearch,
   toProfileSelectOptions,
+  type BenefitDeliveryFormErrors,
+  type BenefitDeliveryFormValues,
+  type MemberBenefitRecord,
   type MemberDetail,
   type MemberFormErrors,
   type MemberFormValues,
@@ -36,6 +41,9 @@ export function useMembersViewModel() {
   const setLoading = useSessionStore((state) => state.setLoading);
   const canCreate = permissions.includes('members.create');
   const canEdit = permissions.includes('members.edit');
+  const canDeliver = permissions.includes('benefits.deliver');
+  const canDeliverException = permissions.includes('benefits.deliver_exception');
+  const canRegisterDelivery = canDeliver || canDeliverException;
 
   const [members, setMembers] = useState<MemberRecord[]>([]);
   const [profiles, setProfiles] = useState<ProfileOption[]>([]);
@@ -65,6 +73,14 @@ export function useMembersViewModel() {
   const [detail, setDetail] = useState<MemberDetail | null>(null);
   const [detailError, setDetailError] = useState('');
   const [isLoadingDetail, setIsLoadingDetail] = useState(false);
+
+  const [deliverTarget, setDeliverTarget] = useState<MemberBenefitRecord | null>(null);
+  const [deliverValues, setDeliverValues] = useState<BenefitDeliveryFormValues>(
+    emptyBenefitDeliveryForm(),
+  );
+  const [deliverErrors, setDeliverErrors] = useState<BenefitDeliveryFormErrors>({});
+  const [deliverError, setDeliverError] = useState('');
+  const [isDelivering, setIsDelivering] = useState(false);
 
   const sortMembers = (rows: MemberRecord[]) =>
     [...rows].sort((left, right) => {
@@ -152,7 +168,75 @@ export function useMembersViewModel() {
   };
 
   const closeDetail = () => {
+    if (isDelivering) return;
     setDrawerOpen(false);
+    setDeliverTarget(null);
+  };
+
+  const fichaYear = Number(today.slice(0, 4)) || 0;
+  const deliverModeValue = deliverTarget
+    ? deliveryMode(deliverTarget, canDeliver, canDeliverException)
+    : null;
+
+  const openDeliver = (benefit: MemberBenefitRecord) => {
+    if (!canRegisterDelivery || !detail || !today) return;
+    setDeliverTarget(benefit);
+    setDeliverValues(emptyBenefitDeliveryForm(today));
+    setDeliverErrors({});
+    setDeliverError('');
+  };
+
+  const closeDeliver = () => {
+    if (isDelivering) return;
+    setDeliverTarget(null);
+  };
+
+  const confirmDeliver = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (isDelivering || !canRegisterDelivery || !detail || !deliverTarget) return;
+    if (deliverModeValue !== 'normal' && deliverModeValue !== 'exception') return;
+    const prepared = service.prepareDelivery(
+      detail.id,
+      deliverTarget.id,
+      deliverValues,
+      today,
+      fichaYear,
+      deliverModeValue === 'exception',
+    );
+    if (!prepared.ok) {
+      setDeliverErrors(prepared.errors);
+      return;
+    }
+    setIsDelivering(true);
+    setDeliverError('');
+    try {
+      await service.deliver(prepared.payload);
+      const wasException = deliverModeValue === 'exception';
+      setDeliverTarget(null);
+      setToast({
+        show: true,
+        icon: 'checkmark-circle',
+        title: 'Entrega registrada',
+        description: wasException
+          ? 'Quedó como excepción, con la nota en la bitácora.'
+          : 'Quedó registrada para el año de la fecha.',
+      });
+      try {
+        setDetail(await service.loadDetail(detail.id));
+        setDetailError('');
+      } catch (refreshError) {
+        setDetailError(
+          errorMessage(
+            refreshError,
+            'La entrega quedó registrada, pero no pudimos refrescar la ficha.',
+          ),
+        );
+      }
+    } catch (error) {
+      setDeliverError(errorMessage(error, 'No pudimos registrar la entrega.'));
+    } finally {
+      setIsDelivering(false);
+    }
   };
 
   const saveForm = async (event: FormEvent<HTMLFormElement>) => {
@@ -207,6 +291,7 @@ export function useMembersViewModel() {
   return {
     canCreate,
     canEdit,
+    canRegisterDelivery,
     members: visibleMembers,
     profiles,
     profileOptions,
@@ -230,6 +315,13 @@ export function useMembersViewModel() {
     detail,
     detailError,
     isLoadingDetail,
+    deliverTarget,
+    deliverValues,
+    deliverErrors,
+    deliverError,
+    isDelivering,
+    deliverModeValue,
+    fichaYear,
     setSearch,
     setFilterStatus,
     setFilterProfileId,
@@ -240,6 +332,13 @@ export function useMembersViewModel() {
     closeForm,
     openDetail,
     closeDetail,
+    openDeliver,
+    closeDeliver,
+    confirmDeliver,
+    onChangeDeliveredOn: (event: ChangeEvent<HTMLInputElement>) =>
+      setDeliverValues((current) => ({ ...current, deliveredOn: event.target.value })),
+    onChangeDeliveryNote: (event: ChangeEvent<HTMLInputElement>) =>
+      setDeliverValues((current) => ({ ...current, note: event.target.value })),
     saveForm,
     onChangeDocumentType: (value: string) =>
       patchField('documentType', value as DocumentTypeCode),

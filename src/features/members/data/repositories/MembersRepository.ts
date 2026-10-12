@@ -2,6 +2,7 @@ import httpRequestProvider from '@/core/network/httpRequestProvider';
 import type { AxiosResponse } from 'axios';
 import type {
   CreateMemberPayload,
+  DeliverBenefitPayload,
   UpdateMemberPayload,
 } from '../../domain/membersTypes';
 
@@ -25,5 +26,9 @@ export class MembersRepository {
     payload: UpdateMemberPayload,
   ): Promise<AxiosResponse<unknown>> {
     return this.http.patch(`/members/${id}`, payload);
+  }
+
+  deliverBenefit(payload: DeliverBenefitPayload): Promise<AxiosResponse<unknown>> {
+    return this.http.post('/benefit-deliveries', payload);
   }
 }

@@ -25,6 +25,7 @@ import {
 } from '../domain/membersTypes';
 import MemberFormDialog from './MemberFormDialog';
 import MemberDetailDrawer from './MemberDetailDrawer';
+import DeliverBenefitDialog from './DeliverBenefitDialog';
 
 function renderStatus(label: string) {
   if (label === 'Activo' || label === 'No') {
@@ -256,6 +257,7 @@ export default function MembersView() {
 
       <MemberFormDialog vm={vm} />
       <MemberDetailDrawer vm={vm} />
+      <DeliverBenefitDialog vm={vm} />
     </Box>
   );
 }

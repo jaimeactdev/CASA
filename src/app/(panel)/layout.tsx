@@ -55,7 +55,7 @@ function InnerLayout({ children }: { children: React.ReactNode }) {
   const noPadding = isLoginPage && !isMobile;
   const theme = useTheme();
   const [collapsed, setCollapsed] = useState(true);
-  const [collapsedFull, setCollapsedFull] = useState(false);
+  const [, setCollapsedFull] = useState(false);
   const breadcrumbs = useBreadcrumbs();
   const user = useUserStore((state) => state.user);
   const loadUser = useUserStore((state) => state.loadUser);
@@ -249,7 +249,6 @@ function InnerLayout({ children }: { children: React.ReactNode }) {
         {/* Sidebar Menu */}
         <ResponsiveSidebarMenu
           collapsed={collapsed}
-          collapsedFull={collapsedFull}
           setCollapsed={setCollapsed}
         />
 

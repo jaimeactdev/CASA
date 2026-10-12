@@ -147,5 +147,16 @@ export const updateMemberSchema = z
 
 export const memberIdSchema = z.string().uuid('El afiliado no es válido.');
 
+export const memberBenefitsQuerySchema = z.object({
+  year: z.coerce
+    .number({ error: 'El año no es válido.' })
+    .int()
+    .min(2000, 'El año no es válido.')
+    .max(2100, 'El año no es válido.')
+    .optional(),
+});
+
+export type MemberBenefitsQuery = z.infer<typeof memberBenefitsQuerySchema>;
+
 export type CreateMemberInput = z.infer<typeof createMemberSchema>;
 export type UpdateMemberInput = z.infer<typeof updateMemberSchema>;

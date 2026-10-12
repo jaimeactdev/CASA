@@ -163,7 +163,10 @@ export function SidebarMenu({
 
     const hasChildren = (item.subItems?.length ?? 0) > 0;
     const isOpen = openMenus.includes(path);
-    const isActive = Boolean(item.url && pathname === `${item.url}/`);
+    const isActive = Boolean(
+      item.url &&
+        normalizeMenuPath(pathname ?? "") === normalizeMenuPath(item.url),
+    );
     const primary = Boolean(item.primarySection);
     const brand = theme.palette.primary.main;
 
@@ -182,7 +185,6 @@ export function SidebarMenu({
         }}
       >
         <ListItemIcon
-          onClick={toggleCollapse}
           sx={{
             color: iconColor,
             justifyContent: "center",
@@ -212,15 +214,24 @@ export function SidebarMenu({
             }}
           />
         )}
-        {hasChildren &&
-          !collapsed &&
-          (isOpen ? (
-            <ExpandLess sx={{ cursor: "pointer" }} />
-          ) : (
-            <ExpandMore sx={{ cursor: "pointer" }} />
-          ))}
       </Box>
     );
+
+    const submenuToggle =
+      hasChildren && !collapsed ? (
+        <IconButton
+          aria-label={isOpen ? `Cerrar ${item.text}` : `Abrir ${item.text}`}
+          size="small"
+          onClick={(event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            handleMenuPathClick(path);
+          }}
+          sx={{ borderRadius: "50%", color: "inherit" }}
+        >
+          {isOpen ? <ExpandLess /> : <ExpandMore />}
+        </IconButton>
+      ) : null;
 
     const Wrapper = item.external ? "a" : Link;
     const linkProps = item.external
@@ -308,9 +319,6 @@ export function SidebarMenu({
       <div key={path} style={{ background: "transparent" }}>
         <>
           <ListItem
-            onClick={() => {
-              if (hasChildren) handleMenuPathClick(path);
-            }}
             sx={{
               px: 2,
               py: 1,
@@ -338,13 +346,39 @@ export function SidebarMenu({
                 : {}),
             }}
           >
-            {collapsed ? (
+            {item.url ? (
+              <Box
+                component={Wrapper as React.ElementType}
+                {...linkProps}
+                onClick={() => {
+                  if (item.onClick) item.onClick();
+                  handleItemClick();
+                }}
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  flex: 1,
+                  minWidth: 0,
+                  color: "inherit",
+                  textDecoration: "none",
+                }}
+              >
+                {collapsed ? (
+                  <Tooltip title={item.text} placement="right">
+                    {content}
+                  </Tooltip>
+                ) : (
+                  content
+                )}
+              </Box>
+            ) : collapsed ? (
               <Tooltip title={item.text} placement="right">
                 {content}
               </Tooltip>
             ) : (
               content
             )}
+            {submenuToggle}
           </ListItem>
           {!collapsed && hasChildren && (
             <Collapse in={isOpen} timeout="auto" unmountOnExit>

@@ -1,11 +1,16 @@
 import { describe, expect, it } from 'vitest';
 import {
+  deliveryMode,
+  eligibilitySummary,
+  emptyBenefitDeliveryForm,
   formatMemberNumber,
   formatPesos,
   matchesMemberSearch,
+  validateBenefitDelivery,
   validateMemberForm,
   emptyMemberForm,
   toCreatePayload,
+  toDeliverBenefitPayload,
   toIsoDateInput,
 } from './membersTypes';
 
@@ -70,5 +75,73 @@ describe('toIsoDateInput', () => {
 describe('formatPesos', () => {
   it('formats Colombian pesos without decimals', () => {
     expect(formatPesos(17_000)).toMatch(/17.000/);
+  });
+});
+
+describe('benefit delivery on the member card', () => {
+  const eligible = { canDeliver: true, canDeliverWithException: true };
+  const exceptionOnly = { canDeliver: false, canDeliverWithException: true };
+  const noQuota = { canDeliver: false, canDeliverWithException: false };
+
+  it('describes eligibility and who may confirm', () => {
+    expect(eligibilitySummary(eligible)).toMatch(/Puede recibirlo/);
+    expect(eligibilitySummary(exceptionOnly)).toMatch(/excepción/);
+    expect(eligibilitySummary(noQuota)).toMatch(/cupo/);
+    expect(deliveryMode(eligible, true, false)).toBe('normal');
+    expect(deliveryMode(eligible, false, true)).toBe('normal');
+    expect(deliveryMode(exceptionOnly, true, false)).toBe('forbidden');
+    expect(deliveryMode(exceptionOnly, false, true)).toBe('exception');
+    expect(deliveryMode(noQuota, true, true)).toBe('blocked');
+  });
+
+  it('requires a date in the card year and a note only for an exception', () => {
+    const today = '2026-10-12';
+    expect(
+      validateBenefitDelivery(emptyBenefitDeliveryForm(''), today, 2026, false)
+        .deliveredOn,
+    ).toMatch(/obligatoria/);
+    expect(
+      validateBenefitDelivery(
+        emptyBenefitDeliveryForm('2026-10-13'),
+        today,
+        2026,
+        false,
+      ).deliveredOn,
+    ).toMatch(/futura/);
+    expect(
+      validateBenefitDelivery(
+        emptyBenefitDeliveryForm('2025-12-20'),
+        today,
+        2026,
+        false,
+      ).deliveredOn,
+    ).toMatch(/año de la ficha/);
+    expect(
+      validateBenefitDelivery(
+        { deliveredOn: '12/10/2026', note: '' },
+        today,
+        2026,
+        true,
+      ).note,
+    ).toMatch(/excepción/);
+    expect(
+      validateBenefitDelivery(
+        { deliveredOn: '2026-10-12', note: 'Junta' },
+        today,
+        2026,
+        true,
+      ),
+    ).toEqual({});
+    expect(
+      toDeliverBenefitPayload('member-1', 'benefit-1', {
+        deliveredOn: '12/10/2026',
+        note: '  ',
+      }),
+    ).toEqual({
+      memberId: 'member-1',
+      benefitId: 'benefit-1',
+      deliveredOn: '2026-10-12',
+      note: null,
+    });
   });
 });

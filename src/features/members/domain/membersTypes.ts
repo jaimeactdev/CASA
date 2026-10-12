@@ -1,3 +1,5 @@
+import { isOnOrBefore, parseIsoDate } from '@/rules/calendar';
+
 export const DOCUMENT_TYPE_OPTIONS = [
   { value: 'CC', label: 'Cédula de ciudadanía' },
   { value: 'CE', label: 'Cédula de extranjería' },
@@ -90,6 +92,12 @@ export type MemberFeeRecord = {
   paymentMethodName: string;
 };
 
+export type BenefitConditionRecord = {
+  key: string;
+  label: string;
+  passed: boolean;
+};
+
 export type MemberBenefitRecord = {
   id: string;
   name: string;
@@ -98,7 +106,113 @@ export type MemberBenefitRecord = {
   meetsMinimum: boolean;
   alreadyReceived: boolean;
   minimumBlocked: boolean;
+  canDeliver: boolean;
+  canDeliverWithException: boolean;
+  conditions: BenefitConditionRecord[];
 };
+
+export type DeliveryMode = 'normal' | 'exception' | 'blocked' | 'forbidden';
+
+export type BenefitDeliveryFormValues = {
+  deliveredOn: string;
+  note: string;
+};
+
+export type BenefitDeliveryFormErrors = Partial<
+  Record<keyof BenefitDeliveryFormValues, string>
+>;
+
+export type DeliverBenefitPayload = {
+  memberId: string;
+  benefitId: string;
+  deliveredOn: string;
+  note: string | null;
+};
+
+export const MINIMUM_NOT_CONFIGURED_MESSAGE =
+  'Falta definir cuántas cuotas exige este beneficio.';
+
+const BENEFIT_CONDITION_LABELS: Record<string, string> = {
+  memberActive: 'El afiliado está activo',
+  profileIncludesBenefit: 'El perfil incluye este beneficio',
+  sexMatches: 'El sexo coincide con el público del beneficio',
+  minPaidFeesMet: 'Cumple el mínimo de cuotas pagadas del año',
+  quotaAvailable: 'Aún hay cupo en este año',
+  minimumConfigured: 'El mínimo de cuotas ya está definido',
+};
+
+export function benefitConditionLabel(key: string): string {
+  return BENEFIT_CONDITION_LABELS[key] ?? key;
+}
+
+export function eligibilitySummary(
+  benefit: Pick<MemberBenefitRecord, 'canDeliver' | 'canDeliverWithException'>,
+): string {
+  if (benefit.canDeliver) return 'Puede recibirlo.';
+  if (benefit.canDeliverWithException) return 'Solo se puede entregar con excepción.';
+  return 'No se puede entregar: ya no hay cupo este año.';
+}
+
+export function deliveryMode(
+  benefit: Pick<MemberBenefitRecord, 'canDeliver' | 'canDeliverWithException'>,
+  canDeliver: boolean,
+  canException: boolean,
+): DeliveryMode {
+  if (!benefit.canDeliverWithException) return 'blocked';
+  if (benefit.canDeliver && (canDeliver || canException)) return 'normal';
+  if (canException) return 'exception';
+  return 'forbidden';
+}
+
+export function emptyBenefitDeliveryForm(today = ''): BenefitDeliveryFormValues {
+  return { deliveredOn: today, note: '' };
+}
+
+export function validateBenefitDelivery(
+  values: BenefitDeliveryFormValues,
+  today: string,
+  year: number,
+  requiresNote: boolean,
+): BenefitDeliveryFormErrors {
+  const errors: BenefitDeliveryFormErrors = {};
+  const iso = toIsoDateInput(values.deliveredOn);
+  if (!iso) {
+    errors.deliveredOn = 'La fecha de entrega es obligatoria.';
+  } else {
+    try {
+      const date = parseIsoDate(iso);
+      const todayDate = parseIsoDate(toIsoDateInput(today));
+      if (!isOnOrBefore(date, todayDate)) {
+        errors.deliveredOn = 'La fecha de entrega no puede ser futura.';
+      } else if (date.year !== year) {
+        errors.deliveredOn = 'La fecha debe caer en el año de la ficha.';
+      }
+    } catch {
+      errors.deliveredOn = 'La fecha de entrega no es válida.';
+    }
+  }
+  const note = values.note.trim();
+  if (requiresNote && !note) {
+    errors.note = 'La nota es obligatoria cuando la entrega es una excepción.';
+  } else if (note.length > 500) {
+    errors.note = 'Máximo 500 caracteres.';
+  }
+  return errors;
+}
+
+export function toDeliverBenefitPayload(
+  memberId: string,
+  benefitId: string,
+  values: BenefitDeliveryFormValues,
+): DeliverBenefitPayload {
+  const note = values.note.trim();
+  return {
+    memberId,
+    benefitId,
+    deliveredOn: toIsoDateInput(values.deliveredOn),
+    note: note.length > 0 ? note : null,
+  };
+}
 
 export type CurrentFeeQuote = {
   minimumWage: number;

@@ -9,7 +9,12 @@ import { APP_MODAL_Z_INDEX } from '@/shared/layout/appShellConstants';
 import HoverIconButton from '@/shared/ui/mui/HoverIconButton';
 import { StatusIndicator } from '@/shared/ui/StatusIndicatorCell';
 import type { useMembersViewModel } from '../viewmodel/useMembersViewModel';
-import type { MemberBenefitRecord, MemberFeeRecord } from '../domain/membersTypes';
+import {
+  eligibilitySummary,
+  MINIMUM_NOT_CONFIGURED_MESSAGE,
+  type MemberBenefitRecord,
+  type MemberFeeRecord,
+} from '../domain/membersTypes';
 
 type MembersViewModel = ReturnType<typeof useMembersViewModel>;
 
@@ -77,7 +82,16 @@ function FeeRow({ fee }: { fee: MemberFeeRecord }) {
   );
 }
 
-function BenefitRow({ benefit }: { benefit: MemberBenefitRecord }) {
+function BenefitRow({
+  benefit,
+  canRegister,
+  onRegister,
+}: {
+  benefit: MemberBenefitRecord;
+  canRegister: boolean;
+  onRegister: (benefit: MemberBenefitRecord) => void;
+}) {
+  const theme = useTheme();
   return (
     <Box
       sx={{
@@ -100,10 +114,23 @@ function BenefitRow({ benefit }: { benefit: MemberBenefitRecord }) {
           ? `Ya lo recibió este año (${benefit.deliveriesThisYear}).`
           : 'Aún no lo ha recibido este año.'}
       </Typography>
+      <Typography sx={{ color: colors.textBody, fontSize: fontSizes.sm }}>
+        {eligibilitySummary(benefit)}
+      </Typography>
       {benefit.minimumBlocked ? (
         <Typography sx={{ color: colors.error, fontSize: fontSizes.sm }}>
-          Falta definir cuántas cuotas exige este beneficio.
+          {MINIMUM_NOT_CONFIGURED_MESSAGE}
         </Typography>
+      ) : null}
+      {canRegister ? (
+        <Box sx={{ mt: 1.5 }}>
+          <HoverIconButton
+            text="Registrar entrega"
+            type="button"
+            onClick={() => onRegister(benefit)}
+            sx={theme.customButtons.secondary}
+          />
+        </Box>
       ) : null}
     </Box>
   );
@@ -227,7 +254,12 @@ export default function MemberDetailDrawer({ vm }: { vm: MembersViewModel }) {
               </Typography>
             ) : (
               detail.benefits.map((benefit) => (
-                <BenefitRow key={benefit.id} benefit={benefit} />
+                <BenefitRow
+                  key={benefit.id}
+                  benefit={benefit}
+                  canRegister={vm.canRegisterDelivery}
+                  onRegister={vm.openDeliver}
+                />
               ))
             )}
           </Section>

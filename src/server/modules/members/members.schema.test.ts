@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { createMemberSchema, updateMemberSchema } from './members.schema';
+import {
+  createMemberSchema,
+  memberBenefitsQuerySchema,
+  updateMemberSchema,
+} from './members.schema';
 
 const validCreate = {
   documentType: 'CC',
@@ -60,5 +64,18 @@ describe('updateMemberSchema', () => {
     expect(updateMemberSchema.parse({ status: 'SUSPENDED' })).toEqual({
       status: 'SUSPENDED',
     });
+  });
+});
+
+describe('memberBenefitsQuerySchema', () => {
+  it('reads the year and allows omitting it', () => {
+    expect(memberBenefitsQuerySchema.parse({ year: '2026' }).year).toBe(2026);
+    expect(memberBenefitsQuerySchema.parse({}).year).toBeUndefined();
+  });
+
+  it('rejects a year outside the supported range', () => {
+    expect(memberBenefitsQuerySchema.safeParse({ year: '1999' }).success).toBe(
+      false,
+    );
   });
 });

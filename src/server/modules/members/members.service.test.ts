@@ -40,6 +40,7 @@ import {
   assertCanEnroll,
   createMember,
   getMember,
+  getMemberBenefits,
   MINIMUM_WAGE_REQUIRED_MESSAGE,
   updateMember,
 } from './members.service';
@@ -336,5 +337,125 @@ describe('getMember', () => {
       total: 27_000,
     });
     expect(detail.inArrears).toBe(true);
+  });
+});
+
+describe('getMemberBenefits', () => {
+  const aguinaldo = {
+    id: 'benefit-aguinaldo',
+    name: 'Aguinaldo',
+    audience: 'ALL' as const,
+    minPaidFeesInYear: 0,
+    maxDeliveriesPerYear: 1,
+    requiresMinimumSetup: false,
+  };
+  const outing = {
+    id: 'benefit-outing',
+    name: 'Paseo o día de sol',
+    audience: 'ALL' as const,
+    minPaidFeesInYear: 0,
+    maxDeliveriesPerYear: 1,
+    requiresMinimumSetup: true,
+  };
+  const mothersDay = {
+    id: 'benefit-mother',
+    name: 'Día de la madre',
+    audience: 'FEMALE' as const,
+    minPaidFeesInYear: 1,
+    maxDeliveriesPerYear: 1,
+    requiresMinimumSetup: false,
+  };
+
+  beforeEach(() => {
+    findMember.mockReset();
+    ensureFeesUpToDate.mockReset();
+    ensureFeesUpToDate.mockResolvedValue({
+      created: 0,
+      markedOverdue: 0,
+      today: '2026-10-12',
+    });
+  });
+
+  function withBenefits(
+    benefits: unknown[],
+    extras: Record<string, unknown> = {},
+  ) {
+    return memberRow({
+      profile: {
+        ...profile,
+        benefits: benefits.map((benefit) => ({ benefit })),
+      },
+      ...extras,
+    });
+  }
+
+  it('shows the outing blocked while its minimum is still zero', async () => {
+    findMember.mockResolvedValue(withBenefits([outing, aguinaldo]));
+    const page = await getMemberBenefits(memberId, 2026, nowEarly, 'user-1');
+    expect(ensureFeesUpToDate).toHaveBeenCalled();
+    const outingRow = page.benefits.find((item) => item.id === outing.id);
+    const gift = page.benefits.find((item) => item.id === aguinaldo.id);
+    expect(outingRow).toMatchObject({
+      minimumBlocked: true,
+      canDeliver: false,
+      canDeliverWithException: true,
+    });
+    expect(gift).toMatchObject({ canDeliver: true, minimumBlocked: false });
+    expect(gift?.conditions.every((condition) => condition.passed)).toBe(true);
+  });
+
+  it('counts a paid monthly fee and ignores the enrollment fee', async () => {
+    findMember.mockResolvedValue(
+      withBenefits([mothersDay], {
+        fees: [
+          {
+            type: 'ENROLLMENT',
+            status: 'PAID',
+            periodYear: null,
+            totalPaid: 25_000,
+          },
+          {
+            type: 'MONTHLY',
+            status: 'PAID',
+            periodYear: 2026,
+            totalPaid: 8_500,
+          },
+        ],
+      }),
+    );
+    const page = await getMemberBenefits(memberId, 2026, nowEarly, 'user-1');
+    expect(page.paidFeesThisYear).toBe(1);
+    expect(page.benefits[0]).toMatchObject({
+      meetsMinimum: true,
+      canDeliver: true,
+    });
+  });
+
+  it('closes the quota after one delivery and does not match an unspecified sex', async () => {
+    findMember.mockResolvedValue(
+      withBenefits([aguinaldo, mothersDay], {
+        sex: 'UNSPECIFIED',
+        deliveries: [{ benefitId: aguinaldo.id, year: 2026 }],
+      }),
+    );
+    const page = await getMemberBenefits(memberId, undefined, nowEarly, 'user-1');
+    const gift = page.benefits.find((item) => item.id === aguinaldo.id);
+    const mother = page.benefits.find((item) => item.id === mothersDay.id);
+    expect(page.year).toBe(2026);
+    expect(gift).toMatchObject({
+      alreadyReceived: true,
+      canDeliver: false,
+      canDeliverWithException: false,
+    });
+    expect(
+      mother?.conditions.find((condition) => condition.key === 'sexMatches')?.passed,
+    ).toBe(false);
+  });
+
+  it('responds 404 when the member does not exist', async () => {
+    findMember.mockResolvedValue(null);
+    await expect(
+      getMemberBenefits(memberId, 2026, nowEarly, 'user-1'),
+    ).rejects.toMatchObject({ status: 404 });
   });
 });

@@ -20,7 +20,10 @@ import {
   sumTotalPaid,
   type PaidFeeSnapshot,
 } from '@/rules/fees';
-import { evaluateBenefit } from '@/rules/benefits';
+import {
+  evaluateBenefit,
+  type BenefitConditionResult,
+} from '@/rules/benefits';
 import {
   formatPercentHundredths,
   toPercentHundredths,
@@ -108,6 +111,16 @@ export type MemberBenefitDto = {
   meetsMinimum: boolean;
   alreadyReceived: boolean;
   minimumBlocked: boolean;
+  canDeliver: boolean;
+  canDeliverWithException: boolean;
+  conditions: BenefitConditionResult[];
+};
+
+export type MemberBenefitsDto = {
+  memberId: string;
+  year: number;
+  paidFeesThisYear: number;
+  benefits: MemberBenefitDto[];
 };
 
 export type CurrentFeeQuoteDto = {
@@ -336,6 +349,9 @@ function toBenefitDtos(
         meetsMinimum: byKey.minPaidFeesMet === true,
         alreadyReceived: deliveriesThisYear > 0,
         minimumBlocked: byKey.minimumConfigured === false,
+        canDeliver: evaluation.canDeliver,
+        canDeliverWithException: evaluation.canDeliverWithException,
+        conditions: evaluation.conditions,
       };
     });
 }
@@ -589,6 +605,25 @@ export async function getMember(
   const [settings, row] = await Promise.all([requireSettings(), findMember(id)]);
   if (!row) throw new HttpError(404, 'Ese afiliado no existe.');
   return toDetailDto(row, settings, today.year, today);
+}
+
+export async function getMemberBenefits(
+  id: string,
+  year: number | undefined,
+  now = new Date(),
+  actorId: string | null = null,
+): Promise<MemberBenefitsDto> {
+  await ensureFeesUpToDate(now, { actorId, source: 'request' });
+  const today = todayInBogota(now);
+  const targetYear = year ?? today.year;
+  const row = await findMember(id);
+  if (!row) throw new HttpError(404, 'Ese afiliado no existe.');
+  return {
+    memberId: row.id,
+    year: targetYear,
+    paidFeesThisYear: memberTotals(row.fees, targetYear).paidFeesThisYear,
+    benefits: toBenefitDtos(row, targetYear),
+  };
 }
 
 export async function createMember(

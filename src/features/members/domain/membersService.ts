@@ -1,14 +1,21 @@
 import { MembersRepository } from '../data/repositories/MembersRepository';
 import {
+  benefitConditionLabel,
   emptyMemberForm,
   formatIsoDateLabel,
   formatPesos,
   mapMember,
   toCreatePayload,
+  toDeliverBenefitPayload,
   toUpdatePayload,
+  validateBenefitDelivery,
   validateMemberForm,
+  type BenefitConditionRecord,
+  type BenefitDeliveryFormErrors,
+  type BenefitDeliveryFormValues,
   type CreateMemberPayload,
   type CurrentFeeQuote,
+  type DeliverBenefitPayload,
   type MemberBenefitRecord,
   type MemberDetail,
   type MemberFeeRecord,
@@ -131,6 +138,22 @@ function toFee(row: Record<string, unknown>): MemberFeeRecord | null {
   };
 }
 
+function toConditions(value: unknown): BenefitConditionRecord[] {
+  if (!Array.isArray(value)) return [];
+  return value.flatMap((item) => {
+    if (!item || typeof item !== 'object') return [];
+    const row = item as Record<string, unknown>;
+    if (typeof row.key !== 'string') return [];
+    return [
+      {
+        key: row.key,
+        label: benefitConditionLabel(row.key),
+        passed: row.passed === true,
+      },
+    ];
+  });
+}
+
 function toBenefit(row: Record<string, unknown>): MemberBenefitRecord | null {
   if (typeof row.id !== 'string' || typeof row.name !== 'string') return null;
   return {
@@ -141,6 +164,9 @@ function toBenefit(row: Record<string, unknown>): MemberBenefitRecord | null {
     meetsMinimum: row.meetsMinimum === true,
     alreadyReceived: row.alreadyReceived === true,
     minimumBlocked: row.minimumBlocked === true,
+    canDeliver: row.canDeliver === true,
+    canDeliverWithException: row.canDeliverWithException === true,
+    conditions: toConditions(row.conditions),
   };
 }
 
@@ -261,5 +287,27 @@ export class MembersService {
     const mapped = toMember(asRecord(await this.repo.updateMember(id, payload)));
     if (!mapped) throw new Error('No pudimos leer el afiliado actualizado.');
     return mapped;
+  }
+
+  prepareDelivery(
+    memberId: string,
+    benefitId: string,
+    values: BenefitDeliveryFormValues,
+    today: string,
+    year: number,
+    requiresNote: boolean,
+  ):
+    | { ok: false; errors: BenefitDeliveryFormErrors }
+    | { ok: true; payload: DeliverBenefitPayload } {
+    const errors = validateBenefitDelivery(values, today, year, requiresNote);
+    if (Object.keys(errors).length > 0) return { ok: false, errors };
+    return {
+      ok: true,
+      payload: toDeliverBenefitPayload(memberId, benefitId, values),
+    };
+  }
+
+  async deliver(payload: DeliverBenefitPayload): Promise<void> {
+    await this.repo.deliverBenefit(payload);
   }
 }
