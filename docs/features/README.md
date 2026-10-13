@@ -45,10 +45,10 @@ pendiente.
 | 6 | Cuotas y pagos | [fees.md](./fees.md) | Cerrado en `a0b7bf1`. Recorrido UI con sesión pendiente |
 | 7 | Entregas | [deliveries.md](./deliveries.md) | Cerrado en `699abb9`. Recorrido UI con sesión pendiente |
 | 8 | Inicio | [home.md](./home.md) | Cerrado en `7927161`. Recorrido UI con sesión pendiente |
-| 9 | Página pública | [site.md](./site.md) | Cerrado en este commit (`jact`). Recorrido sin sesión hecho |
+| 9 | Página pública | [site.md](./site.md) | Cerrado en `264a1ab` (`origin/jact`). Recorrido sin sesión hecho |
 | 10 | Formulario de afiliación PDF | [affiliation-form.md](./affiliation-form.md) | Especificado en §10.11. Sin código |
 
-El módulo 8 cierra en `7927161`. El módulo 9 cierra en este commit de `jact`. El módulo 10 está solo en documentación.
+El módulo 8 cierra en `7927161`. El módulo 9 cierra en `264a1ab` (`origin/jact`). El módulo 10 está solo en documentación.
 
 ## Qué no tocar
 
