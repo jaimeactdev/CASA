@@ -268,6 +268,8 @@ Al crear un afiliado activo, su cuota del mes en curso se crea en la misma trans
 ### 5.8 Seguridad
 
 - La página pública no lista afiliados, documentos, teléfonos ni pagos.
+- Los datos personales se tratan según la Ley Estatutaria 1581 de 2012 y el Decreto 1377 de 2013, solo para gestionar la afiliación, las cuotas y los beneficios. La autorización se firma en el formulario de afiliación (§10.11).
+- La asociación no reporta a centrales de riesgo ni a operadores de información financiera, no consulta historiales crediticios y no comparte datos de afiliados con terceros. La aplicación no tiene integraciones ni exportaciones para eso.
 - Las claves se guardan con hash `bcryptjs`.
 - Cada escritura exige sesión y permiso, y queda en la bitácora.
 - No se borran afiliados, usuarios, cuotas ni entregas. Se desactivan, se retiran o se anulan.
@@ -904,11 +906,15 @@ Documento imprimible para que la persona complete a mano, firme y lo entregue en
    - Fecha de afiliación deseada / día en que se presenta
    - Perfil de afiliación solicitado (espacio en blanco; el personal lo confirma al digitar)
    - Observaciones
-3. **Espacio para firmas.** Del solicitante y, si aplica, de quien lo acompañe o del personal que recibe el formulario. Fecha.
-4. **Casilla de tratamiento de datos personales.** Un check claro, junto al texto de autorización, citando las **leyes XYZ** (placeholder: al implementar, sustituir por las normas colombianas vigentes que indique la asociación, p. ej. Ley 1581 de 2012 y normas que la complementen). Sin ese check marcado en el papel, el personal no registra el alta.
+3. **Espacio para firmas.** Firma, nombre y documento del solicitante, con fecha. Si el solicitante es menor de edad (el alta no exige edad mínima), firma su representante legal con nombre, documento y parentesco. Espacio para quien recibe en ventanilla.
+4. **Casilla de tratamiento de datos personales.** Casilla **sin marcar** (el silencio o una casilla premarcada no valen como autorización), en un bloque separado del resto del formulario, con este texto fijo:
+
+   > ☐ Autorizo de manera previa, expresa e informada a [nombre de la asociación] para tratar mis datos personales con el fin de gestionar mi afiliación, mis cuotas y la entrega de beneficios, conforme a la Ley Estatutaria 1581 de 2012 y el Decreto 1377 de 2013 (compilado en el Decreto 1074 de 2015). Conozco mis derechos a conocer, actualizar, rectificar y suprimir mis datos, a pedir prueba de esta autorización y a revocarla, y que puedo ejercerlos en ventanilla o ante la Superintendencia de Industria y Comercio. Mis datos no se venden ni se comparten con terceros, ni se reportan a centrales de riesgo.
+
+   El nombre de la asociación sale de `Settings`. Sin esta casilla marcada y firmada en el papel, el personal no registra el alta. La asociación guarda el papel firmado como prueba de la autorización (Decreto 1377 de 2013).
 5. **Declaraciones que el solicitante reconoce al firmar** (texto fijo en español, en el PDF):
    - La afiliación es voluntaria. Puede dejar de estar afiliado cuando lo desee y dejar de pagar cuando lo desee, pidiendo el retiro o la suspensión en ventanilla.
-   - Entrar en mora o dejar de pagar **no afecta ningún perfil crediticio**, centrales de riesgo ni productos financieros ajenos a la asociación. No es un crédito.
+   - La asociación **no reporta a centrales de riesgo** ni a ningún operador de información financiera o crediticia, y no consulta su historial crediticio. Estar en mora o dejar de pagar no afecta su historial ni su perfil crediticio. La cuota es un aporte voluntario, no un crédito ni una deuda financiera.
    - El aporte mensual y los beneficios dependen del **perfil** que se le asigne. Algunos beneficios tienen **condiciones** (sexo, cuotas pagadas del año, cupo anual, mínimo configurado, estado Activo). Cumplirlas no es automático: el personal las verifica al entregar.
    - Los servicios se prestan en la ciudad configurada. No hay formulario de alta por internet.
 6. **Resumen breve de beneficios** (opcional en el PDF): los beneficios públicos activos con su texto público, o una frase que remite a la página y a la ventanilla para el detalle. No lista condiciones internas ni el auxilio de lentes si sigue oculto.
@@ -967,7 +973,7 @@ Cada módulo cierra con la revisión de ADR-005 antes de empezar el siguiente.
 | 7 | Entregas | Elegibilidad en la ficha, `/beneficios/entregas`, excepción y anulación |
 | 8 | Inicio | `/home` con conteos y recordatorios |
 | 9 | Página pública | `/` con `GET /api/public/site` |
-| 10 | Formulario de afiliación PDF | Descarga desde `/` y `/login`; campos del alta, check de datos personales (leyes XYZ), firmas y declaraciones (§10.11) |
+| 10 | Formulario de afiliación PDF | Descarga desde `/` y `/login`; campos del alta, autorización de datos (Ley 1581 de 2012), firmas y declaraciones, sin reportes a centrales de riesgo (§10.11) |
 
 ## 14. Publicación y base de datos
 

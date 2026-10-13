@@ -26,10 +26,11 @@ Node: nvm use 22 (el default de la máquina es 18). Sin git salvo que lo pida
 en el mismo turno. Responde en español (Colombia).
 
 El módulo 9 está en origin/jact. El módulo 10 está especificado en
-REQUERIMIENTOS §10.11 y affiliation-form.md: PDF descargable desde / y
-/login, campos del alta, check de datos personales (leyes XYZ), firmas y
-declaraciones. No crea afiliados. El recorrido con sesión del panel sigue
-pendiente.
+REQUERIMIENTOS §5.8 y §10.11 y en affiliation-form.md: PDF descargable desde
+/ y /login, campos del alta, autorización de datos según la Ley 1581 de 2012
+y el Decreto 1377 de 2013 (casilla sin marcar), firmas con representante
+legal para menores y declaraciones. La asociación no reporta a centrales de
+riesgo. No crea afiliados. El recorrido con sesión del panel sigue pendiente.
 ```
 
 ## Estado
@@ -67,7 +68,7 @@ El módulo 8 cierra en `7927161`. El módulo 9 cierra en `264a1ab` (`origin/jact
 
 - Recorrido con sesión de `/home`, `/beneficios/entregas`, `/pagos`, `/afiliados`, `/perfiles`, `/beneficios`, `/usuarios`, `/roles` y `/parametros`: sin cookie el panel cae en `/login`. `GET /api/dashboard` responde 401. El navegador embebido usa `http://127.0.0.1:4200`.
 - Dev a veces ya está en el puerto 4200 (`EADDRINUSE`): no levantar otro.
-- Placeholder **leyes XYZ** del formulario PDF: definir el texto legal antes o durante el módulo 10.
+- Texto legal del formulario PDF (Ley 1581 de 2012): conviene que lo revise un abogado antes de imprimir en producción. No bloquea el módulo 10.
 
 ## Módulo 8 — archivos (listo)
 
