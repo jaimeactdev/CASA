@@ -2,7 +2,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { SESSION_COOKIE, verifySessionToken } from '@/server/auth/sessionToken';
 
 const PUBLIC_PAGES = new Set(['/', '/login']);
-const PUBLIC_API_PREFIXES = ['/api/auth/login'];
+const PUBLIC_API_PREFIXES = ['/api/auth/login', '/api/public/site'];
 
 function isPublicPage(pathname: string) {
   return PUBLIC_PAGES.has(pathname);

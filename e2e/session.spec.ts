@@ -10,21 +10,25 @@ test.describe('Session (user journey)', () => {
 
   test('with a mocked session, home loads', async ({ page }) => {
     await openWithSession(page, '/home');
-    await expect(page.getByRole('heading', { name: /Hola/ })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Inicio' })).toBeVisible();
+    await expect(page.getByText(/Hola, Usuario E2E/)).toBeVisible();
     await expect(page).toHaveURL(/\/home\/?$/);
   });
 
   test('reload keeps home when the session is mocked', async ({ page }) => {
     await openWithSession(page, '/home');
-    await expect(page.getByRole('heading', { name: /Hola/ })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Inicio' })).toBeVisible();
+    await expect(page.getByText(/Hola, Usuario E2E/)).toBeVisible();
     await page.reload({ waitUntil: 'domcontentloaded' });
-    await expect(page.getByRole('heading', { name: /Hola/ })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Inicio' })).toBeVisible();
+    await expect(page.getByText(/Hola, Usuario E2E/)).toBeVisible();
     await expect(page).toHaveURL(/\/home\/?$/);
   });
 
   test('logout returns to login and /home stays protected', async ({ page }) => {
     await openWithSession(page, '/home');
-    await expect(page.getByRole('heading', { name: /Hola/ })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Inicio' })).toBeVisible();
+    await expect(page.getByText(/Hola, Usuario E2E/)).toBeVisible();
 
     await page.getByText(E2E_USER.name, { exact: true }).click();
     await page.getByRole('menuitem', { name: 'Cerrar sesión' }).click();

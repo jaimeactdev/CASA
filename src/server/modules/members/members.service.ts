@@ -423,7 +423,7 @@ async function write<T>(fn: () => Promise<T>): Promise<T> {
   }
 }
 
-async function requireSettings(db: DbClient): Promise<SettingsRow> {
+async function requireSettings(db: DbClient = prisma): Promise<SettingsRow> {
   const settings = await findSettings(db);
   if (!settings) {
     throw new HttpError(500, 'No hay parámetros configurados.');

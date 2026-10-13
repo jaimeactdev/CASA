@@ -13,12 +13,12 @@ import {
 import { useTheme } from '@mui/material/styles';
 import { APP_MODAL_MENU_Z_INDEX } from '@/shared/layout/appShellConstants';
 
-export interface SelectWithSearchOption<T = string | number> {
+export interface SelectWithSearchOption<T extends string | number = string> {
   label: string;
   value: T;
 }
 
-interface SelectWithSearchFieldProps<T = string | number> {
+interface SelectWithSearchFieldProps<T extends string | number = string> {
   name: string;
   label: string;
   value: T;
@@ -37,7 +37,7 @@ const menuItemSx = {
   maxWidth: '100%',
 };
 
-const SelectWithSearchFieldMUI = <T extends string | number>(
+const SelectWithSearchFieldMUI = <T extends string | number = string>(
   {
     name,
     label,
@@ -200,4 +200,8 @@ const SelectWithSearchFieldMUI = <T extends string | number>(
   );
 };
 
-export default forwardRef(SelectWithSearchFieldMUI);
+export default forwardRef(SelectWithSearchFieldMUI) as <
+  T extends string | number = string,
+>(
+  props: SelectWithSearchFieldProps<T> & React.RefAttributes<HTMLSelectElement>,
+) => React.ReactElement | null;

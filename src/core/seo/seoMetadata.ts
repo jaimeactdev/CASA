@@ -5,10 +5,15 @@ const isProd = process.env.NODE_ENV === "production";
 
 const baseUrl = isProd ? appConfig.siteUrl : "http://localhost:4200";
 
-type PageKey = "login" | "home" | "ejemplo" | "form";
+type PageKey = "site" | "login" | "home" | "ejemplo" | "form";
 
 /** SEO metadata per page. Titles use appConfig.name — change it in branding. */
 export const seoMetadata: Record<PageKey, Metadata> = {
+  site: {
+    title: appConfig.fullName,
+    description: appConfig.description,
+    alternates: { canonical: `${baseUrl}/` },
+  },
   login: {
     title: `Iniciar sesión | ${appConfig.name}`,
     description: appConfig.tagline,

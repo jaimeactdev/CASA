@@ -5,7 +5,7 @@ Un archivo por módulo (`11_feature_docs_standard.md`, ADR-005). **No** se escri
 
 ## Cómo reanudar
 
-1. Cargar, en este orden: `AGENTS.md`, `docs/REQUERIMIENTOS.md`, `docs/prompts/1` a `4` y `5`, `docs/architecture.md`, `docs/ui-kit.md`, este archivo y el `docs/features/<modulo>.md` del último módulo listo.
+1. Cargar, en este orden: `AGENTS.md`, `docs/REQUERIMIENTOS.md`, `docs/prompts/1` a `4` y `5`, `docs/architecture.md`, `docs/ui-kit.md`, este archivo y el `docs/features/<modulo>.md` del módulo que vayas a construir o revisar.
 2. **Node:** el predeterminado del nvm de esta máquina es **18**. El repo exige **22** (`.nvmrc`). Antes de lint/test/dev: `nvm use 22` (hoy está instalado `22.23.3`). Con Node 18, Vitest no carga `vitest.config.ts`.
 3. No reescribir los módulos ya listos. No ejecutar git salvo que lo pidan en ese turno.
 4. Responder en español (Colombia).
@@ -13,30 +13,23 @@ Un archivo por módulo (`11_feature_docs_standard.md`, ADR-005). **No** se escri
 ## Prompt para pegar en el siguiente chat
 
 ```text
-Continúa CASA en el módulo 9 (página pública). No reescribas los módulos 0 a 8.
+Continúa CASA en el módulo 10 (formulario de afiliación PDF). No reescribas
+los módulos 0 a 9 salvo un bug.
 
-Antes de implementar, carga en este orden:
+Antes de tocar código, carga en este orden:
 AGENTS.md, docs/REQUERIMIENTOS.md, docs/prompts/1_project_context.md,
 docs/prompts/2_architecture_rules.md, docs/prompts/3_development_workflow.md,
-docs/prompts/4_documentation_workflow.md, docs/prompts/5_feature_generator.md,
-docs/architecture.md, docs/ui-kit.md, docs/features/README.md,
-docs/features/home.md.
+docs/prompts/4_documentation_workflow.md, docs/architecture.md, docs/ui-kit.md,
+docs/features/README.md y docs/features/affiliation-form.md.
 
 Node: nvm use 22 (el default de la máquina es 18). Sin git salvo que lo pida
 en el mismo turno. Responde en español (Colombia).
 
-El módulo 6 sigue cerrado en a0b7bf1. El módulo 7 quedó cerrado en 699abb9.
-El módulo 8 quedó cerrado en jact: /home y GET /api/dashboard. No reabras
-los módulos 0 a 8 salvo un bug.
-
-Construye el módulo 9 completo según REQUERIMIENTOS §10.1 y §13:
-la página pública `/` (hoy redirige al panel) y GET /api/public/site.
-Presentación, beneficios públicos, cómo afiliarse, contacto si hay datos
-y un enlace discreto a /login. Sin datos de afiliados. El auxilio de lentes
-sigue oculto.
-
-Al cerrar: lint + test en Node 22, el documento del módulo según
-11_feature_docs_standard.md y actualizar este README.
+El módulo 9 está en origin/jact. El módulo 10 está especificado en
+REQUERIMIENTOS §10.11 y affiliation-form.md: PDF descargable desde / y
+/login, campos del alta, check de datos personales (leyes XYZ), firmas y
+declaraciones. No crea afiliados. El recorrido con sesión del panel sigue
+pendiente.
 ```
 
 ## Estado
@@ -47,19 +40,19 @@ Al cerrar: lint + test en Node 22, el documento del módulo según
 | 1 | Reglas (`src/rules`) | [rules.md](./rules.md) | Listo y commiteado |
 | 2 | Parámetros y medios de pago | [settings.md](./settings.md) | Listo y en `origin/jact` (`1a79e46`) |
 | 3 | Usuarios y roles | [users.md](./users.md) | Listo y en `origin/jact` (`47fc5e8`) |
-| 4 | Perfiles y catálogo de beneficios | [profiles.md](./profiles.md) | Listo y en `jact`. Recorrido UI con sesión pendiente |
+| 4 | Perfiles y catálogo de beneficios | [profiles.md](./profiles.md) | Listo en `jact`. Recorrido UI con sesión pendiente |
 | 5 | Afiliados | [members.md](./members.md) | Listo en `jact`. Recorrido UI con sesión pendiente |
 | 6 | Cuotas y pagos | [fees.md](./fees.md) | Cerrado en `a0b7bf1`. Recorrido UI con sesión pendiente |
 | 7 | Entregas | [deliveries.md](./deliveries.md) | Cerrado en `699abb9`. Recorrido UI con sesión pendiente |
-| 8 | Inicio | [home.md](./home.md) | Listo en `jact`. Recorrido UI con sesión pendiente |
-| 9 | Página pública | — | **Siguiente** |
+| 8 | Inicio | [home.md](./home.md) | Cerrado en `7927161`. Recorrido UI con sesión pendiente |
+| 9 | Página pública | [site.md](./site.md) | Cerrado en este commit (`jact`). Recorrido sin sesión hecho |
+| 10 | Formulario de afiliación PDF | [affiliation-form.md](./affiliation-form.md) | Especificado en §10.11. Sin código |
 
-Commit que cierra 0+1 (rama `jact`): `Cerrar base y reglas: sesión propia y fórmulas de cuota.`
-El módulo 2 está en `origin/jact` en `1a79e46`. El módulo 3 está en `47fc5e8`. El módulo 4 cierra en `12a4157`. El módulo 5 cierra en `ab45f24`. El módulo 6 queda cerrado en `a0b7bf1`, rama `jact`. El módulo 7 cierra en `699abb9`. El módulo 8 cierra en `jact`.
+El módulo 8 cierra en `7927161`. El módulo 9 cierra en este commit de `jact`. El módulo 10 está solo en documentación.
 
 ## Qué no tocar
 
-- Módulo 0: Prisma, `0001_init`, semilla, `/api/auth/*`, cookie `casa_session`, `/login`, `/cambiar-clave`, `middleware.ts` (salvo el paso de `/api/cron/fees`, que ya valida `CRON_SECRET` en la ruta), menú por permisos. El menú no se expande al pasar el cursor. Beneficios navega a `/beneficios`; la flecha abre Entregas.
+- Módulo 0: Prisma, `0001_init`, semilla, `/api/auth/*`, cookie `casa_session`, `/login`, `/cambiar-clave`, menú por permisos. En `middleware.ts` solo están las excepciones ya hechas: `/api/cron/fees` valida `CRON_SECRET` y `/api/public/site` es pública. El menú no se expande al pasar el cursor. Beneficios navega a `/beneficios`; la flecha abre Entregas. El `RootRedirect` de `/` ya no existe.
 - Módulo 1: `src/rules/{money,calendar,fees,benefits}.ts` y sus pruebas.
 - Módulo 2: `src/server/modules/settings`, `src/features/settings`, `/api/settings`, `/api/payment-methods`, `/parametros`.
 - Módulo 3: `src/server/modules/users`, `src/server/modules/roles`, `src/features/users`, `src/features/roles`, `/api/users`, `/api/roles`, `/api/permissions`, `/usuarios`, `/roles`.
@@ -68,42 +61,13 @@ El módulo 2 está en `origin/jact` en `1a79e46`. El módulo 3 está en `47fc5e8
 - Módulo 6: `src/server/modules/fees`, `src/features/fees`, `/api/fees`, `/api/cron/fees`, `/pagos`, `vercel.json`.
 - Módulo 7: `src/server/modules/deliveries`, `src/features/deliveries`, `/api/benefit-deliveries`, `GET /api/members/[id]/benefits`, `/beneficios/entregas`. En la ficha solo se sumó la evaluación y «Registrar entrega».
 - Módulo 8: `src/server/modules/home`, `src/features/home`, `/api/dashboard`, `/home`. `GET /api/dashboard` ya llama `ensureFeesUpToDate`.
+- Módulo 9: `src/server/modules/site`, `src/features/site`, `/api/public/site`, `/`. Sin datos de afiliados. El auxilio de lentes sigue oculto.
 
-## Módulo 6 — archivos (cerrado)
-
-```
-src/server/modules/fees/         schema, repository, service + pruebas
-src/app/api/fees/route.ts
-src/app/api/fees/pay/route.ts
-src/app/api/fees/[id]/revert/route.ts
-src/app/api/cron/fees/route.ts
-src/features/fees/               data → domain → viewmodel → view
-src/app/(panel)/pagos/page.tsx
-vercel.json                      cron 10 5 * * *
-```
-
-Permisos: `fees.view` / `fees.pay` / `fees.revert`. El operativo los tiene.
-`ensureFeesUpToDate` lo llaman el cron, `GET /api/fees`, `GET /api/members/[id]`, `GET /api/members/[id]/benefits` y `GET /api/dashboard`.
-Sin migración. Sin borrado físico.
-
-## Deuda conocida (no bloquea el módulo 9)
+## Deuda conocida
 
 - Recorrido con sesión de `/home`, `/beneficios/entregas`, `/pagos`, `/afiliados`, `/perfiles`, `/beneficios`, `/usuarios`, `/roles` y `/parametros`: sin cookie el panel cae en `/login`. `GET /api/dashboard` responde 401. El navegador embebido usa `http://127.0.0.1:4200`.
 - Dev a veces ya está en el puerto 4200 (`EADDRINUSE`): no levantar otro.
-
-## Módulo 7 — archivos (listo)
-
-```
-src/server/modules/deliveries/   schema, repository, service + pruebas
-src/app/api/benefit-deliveries/route.ts
-src/app/api/benefit-deliveries/[id]/void/route.ts
-src/app/api/members/[id]/benefits/route.ts
-src/features/deliveries/         data → domain → viewmodel → view
-src/app/(panel)/beneficios/entregas/page.tsx
-```
-
-Permisos: `benefits.view` / `benefits.deliver` / `benefits.deliver_exception` / `benefits.void_delivery`. El operativo tiene ver y entregar, no la excepción ni la anulación.
-La evaluación sale de `evaluateBenefit`. Sin migración. Sin borrado físico.
+- Placeholder **leyes XYZ** del formulario PDF: definir el texto legal antes o durante el módulo 10.
 
 ## Módulo 8 — archivos (listo)
 
@@ -116,13 +80,30 @@ src/app/(panel)/home/page.tsx    ya existía; sigue delgada
 
 Sesión, sin permiso de módulo. Conteos de §10.3, aviso de SMMLV en 0 y recordatorio por `suggestedMonth`.
 `GET /api/dashboard` llama `ensureFeesUpToDate` antes de responder. Sin migración. Sin borrado físico.
-No se abrió `/`.
 
-## Módulo 9 — punto de partida
+## Módulo 9 — archivos (listo)
 
-- Ruta: `/`. Hoy `src/app/page.tsx` monta `RootRedirect` y manda al panel.
-- API: `GET /api/public/site`, sin sesión. Nombre, contacto y beneficios con `isPublic`.
-- El auxilio de lentes nace oculto. No listar afiliados, documentos, teléfonos ni pagos.
+```
+src/server/modules/site/         schema, repository, service + pruebas
+src/app/api/public/site/route.ts
+src/features/site/               data → domain → viewmodel → view
+src/app/page.tsx                 delgada, sin shell
+```
+
+Sin sesión. Presentación, beneficios públicos, cómo afiliarse y contacto si hay datos.
+`middleware.ts` deja pasar `GET /api/public/site`. Sin migración. Sin datos de afiliados.
+E2E: 9 pruebas en verde. Ajustes de build: `tsconfig` ES2022, genérico de selects, tipos Prisma unchecked / `requireSettings`.
+
+## Módulo 10 — archivos (especificado, sin código)
+
+```
+(pendiente) GET /api/public/affiliation-form
+(pendiente) generación o servicio del PDF
+(pendiente) botón en SiteView y en la vista de login
+docs/features/affiliation-form.md
+```
+
+Ver REQUERIMIENTOS §10.11.
 
 ## Comandos
 
@@ -130,6 +111,7 @@ No se abrió `/`.
 nvm use 22
 npm test
 npm run lint
+npm run test:e2e
 npm run dev
 ```
 

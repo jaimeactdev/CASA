@@ -41,6 +41,15 @@ const detailFeeSelect = {
   paymentMethod: { select: { name: true } },
 } as const;
 
+const detailFeesQuery = {
+  select: detailFeeSelect,
+  orderBy: [
+    { type: 'asc' },
+    { periodYear: 'desc' },
+    { periodMonth: 'desc' },
+  ] as Prisma.FeeOrderByWithRelationInput[],
+};
+
 const detailMemberInclude = {
   profile: {
     select: {
@@ -64,10 +73,7 @@ const detailMemberInclude = {
       },
     },
   },
-  fees: {
-    select: detailFeeSelect,
-    orderBy: [{ type: 'asc' as const }, { periodYear: 'desc' as const }, { periodMonth: 'desc' as const }],
-  },
+  fees: detailFeesQuery,
   deliveries: {
     where: { isVoided: false },
     select: { benefitId: true, year: true },

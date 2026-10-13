@@ -58,7 +58,7 @@ export function updatePaymentMethodRecord(
 }
 
 export function createAuditLog(
-  data: Prisma.AuditLogCreateInput,
+  data: Prisma.AuditLogUncheckedCreateInput,
   db: DbClient = prisma,
 ) {
   return db.auditLog.create({ data });

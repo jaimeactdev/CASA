@@ -11,12 +11,12 @@ import {
 import { useTheme } from '@mui/material/styles';
 import { APP_MODAL_MENU_Z_INDEX } from '@/shared/layout/appShellConstants';
 
-export interface SelectFieldOption<T = string | number> {
+export interface SelectFieldOption<T extends string | number = string> {
   label: string;
   value: T;
 }
 
-interface SelectFieldProps<T = string | number> {
+interface SelectFieldProps<T extends string | number = string> {
   name: string;
   label: string;
   value: T | '' | null | undefined;
@@ -34,7 +34,7 @@ const menuItemSx = {
   maxWidth: '100%',
 };
 
-const SelectFieldMUI = <T extends string | number>(
+const SelectFieldMUI = <T extends string | number = string>(
   props: SelectFieldProps<T>,
   ref: React.Ref<HTMLSelectElement>
 ) => {
@@ -167,4 +167,6 @@ const SelectFieldMUI = <T extends string | number>(
   );
 };
 
-export default forwardRef(SelectFieldMUI);
+export default forwardRef(SelectFieldMUI) as <T extends string | number = string>(
+  props: SelectFieldProps<T> & React.RefAttributes<HTMLSelectElement>,
+) => React.ReactElement | null;

@@ -1,5 +1,8 @@
-import { RootRedirect } from '@/features/login/view/RootRedirect';
+import { SiteView } from '@/features/site/view/SiteView';
+import { seoMetadata } from '@/core/seo/seoMetadata';
+
+export const metadata = seoMetadata.site;
 
 export default function Page() {
-  return <RootRedirect />;
+  return <SiteView />;
 }

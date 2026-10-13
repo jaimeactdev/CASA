@@ -30,6 +30,19 @@ export async function mockSessionApi(page: Page): Promise<void> {
   await context.route(/\/api\/auth\/login/i, (route) => fulfill(route, E2E_USER));
   await context.route(/\/api\/auth\/me/i, (route) => fulfill(route, E2E_USER));
   await context.route(/\/api\/auth\/logout/i, (route) => fulfill(route, {}));
+  await context.route(/\/api\/dashboard/i, (route) =>
+    fulfill(route, {
+      today: '2026-10-12',
+      year: 2026,
+      month: 10,
+      minimumWage: 1_423_500,
+      activeMembers: 3,
+      activeMembersInArrears: 1,
+      pendingFeesThisMonth: 2,
+      overdueFees: 1,
+      reminders: [],
+    }),
+  );
 }
 
 /** Hydrates the store before the app loads (same contract as `useUserStore`). */

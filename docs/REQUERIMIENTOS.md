@@ -27,6 +27,7 @@ Lleva el control de las cuotas y de los beneficios. No es contabilidad: no hay f
 Incluye:
 
 - Página pública de presentación.
+- Formulario de afiliación en PDF para imprimir y firmar (módulo 10). No sustituye el alta por ventanilla.
 - Ingreso solo para el personal, con usuarios, roles y permisos configurables.
 - Registro de afiliados por ventanilla.
 - Perfiles de afiliación, cada uno con su porcentaje de aporte sobre el salario mínimo.
@@ -43,6 +44,7 @@ Queda para más adelante:
 - Contabilidad.
 - Reportes a la medida. Por ahora basta la descarga a Excel de las tablas.
 - Cargar información vieja. No hay Excel ni cuadernos que migrar.
+- Alta en línea: el afiliado no se registra solo desde la web.
 - Abonos parciales. Cada cuota se paga completa.
 - Cuotas de meses que todavía no llegan.
 - Recuperar la clave por correo. El administrador asigna una nueva.
@@ -785,7 +787,7 @@ Sin sesión. El feature `site` lee `GET /api/public/site`.
 
 1. **Presentación.** Qué es la asociación y que la atención es en la ciudad configurada.
 2. **Beneficios.** Los beneficios activos con `isPublic`, con su texto público.
-3. **Cómo afiliarse.** Cualquier persona, por ventanilla, aporte mensual según el perfil, servicios en esa ciudad. No hay formulario de inscripción.
+3. **Cómo afiliarse.** Cualquier persona, por ventanilla, aporte mensual según el perfil, servicios en esa ciudad. No hay alta en línea. Hay un botón para **descargar el formulario de afiliación en PDF** (ver §10.11).
 4. **Contacto.** Teléfono, correo, dirección y horario. Si están vacíos, la sección no se muestra.
 5. Enlace discreto a "Ingreso del personal" (`/login`).
 
@@ -794,6 +796,7 @@ El auxilio de lentes nace oculto en la página pública.
 ### 10.2 Ingreso `/login` y cambio de clave `/cambiar-clave`
 
 - **Ingreso:** correo y clave. Si el usuario está inactivo o las credenciales no coinciden, se muestra "Correo o clave incorrectos.", sin revelar cuál de los dos falló.
+- En la misma pantalla de ingreso, sin sesión, también se puede **descargar el formulario de afiliación en PDF** (§10.11), para que el personal lo imprima en ventanilla sin entrar al panel.
 - **Cambio de clave obligatorio:** si `mustChangePassword` es verdadero, todo el panel redirige a `/cambiar-clave`. Se piden la clave actual, la nueva y su confirmación.
 
 ### 10.3 Inicio `/home`
@@ -874,6 +877,48 @@ La descarga usa la exportación de `DatatableLocal` e incluye todas las filas qu
 
 Con el volumen esperado (cientos de afiliados, miles de cuotas al año), cargar el año completo en el navegador es suficiente. Si algún día no lo es, la tabla pasa a `DatatableApi` con paginación en el servidor.
 
+### 10.11 Formulario de afiliación en PDF
+
+Documento imprimible para que la persona complete a mano, firme y lo entregue en ventanilla. **No crea afiliados ni envía datos al servidor.** El alta sigue siendo manual por el personal (`/afiliados`).
+
+**Dónde se descarga**
+
+| Lugar | Quién |
+|---|---|
+| Página pública `/` | Cualquiera, sin sesión |
+| Ingreso del personal `/login` | Cualquiera, sin sesión (el personal lo imprime sin entrar al panel) |
+
+**Contenido del PDF**
+
+1. **Encabezado.** Nombre y sigla de la asociación (`Settings`), ciudad de servicios y título «Formulario de afiliación».
+2. **Campos en blanco** con los mismos datos que pide el alta de afiliado (§9.10), listos para rellenar a mano:
+   - Tipo y número de documento
+   - Nombres y apellidos
+   - Sexo
+   - Fecha de nacimiento
+   - Celular (obligatorio en el sistema)
+   - Teléfono fijo (opcional)
+   - Correo (opcional)
+   - Dirección y ciudad de residencia
+   - Tallas de camisa, pantalón y calzado (opcionales)
+   - Fecha de afiliación deseada / día en que se presenta
+   - Perfil de afiliación solicitado (espacio en blanco; el personal lo confirma al digitar)
+   - Observaciones
+3. **Espacio para firmas.** Del solicitante y, si aplica, de quien lo acompañe o del personal que recibe el formulario. Fecha.
+4. **Casilla de tratamiento de datos personales.** Un check claro, junto al texto de autorización, citando las **leyes XYZ** (placeholder: al implementar, sustituir por las normas colombianas vigentes que indique la asociación, p. ej. Ley 1581 de 2012 y normas que la complementen). Sin ese check marcado en el papel, el personal no registra el alta.
+5. **Declaraciones que el solicitante reconoce al firmar** (texto fijo en español, en el PDF):
+   - La afiliación es voluntaria. Puede dejar de estar afiliado cuando lo desee y dejar de pagar cuando lo desee, pidiendo el retiro o la suspensión en ventanilla.
+   - Entrar en mora o dejar de pagar **no afecta ningún perfil crediticio**, centrales de riesgo ni productos financieros ajenos a la asociación. No es un crédito.
+   - El aporte mensual y los beneficios dependen del **perfil** que se le asigne. Algunos beneficios tienen **condiciones** (sexo, cuotas pagadas del año, cupo anual, mínimo configurado, estado Activo). Cumplirlas no es automático: el personal las verifica al entregar.
+   - Los servicios se prestan en la ciudad configurada. No hay formulario de alta por internet.
+6. **Resumen breve de beneficios** (opcional en el PDF): los beneficios públicos activos con su texto público, o una frase que remite a la página y a la ventanilla para el detalle. No lista condiciones internas ni el auxilio de lentes si sigue oculto.
+
+**API y técnica (módulo 10)**
+
+- Ruta pública de descarga (sin sesión), p. ej. `GET /api/public/affiliation-form`. El middleware la deja pasar como `/api/public/site`.
+- El PDF se genera en el servidor (o se sirve un PDF fijo versionado). Si se genera, usa el nombre y la ciudad de `Settings` y, si aplica, los beneficios públicos. No incluye afiliados ni SMMLV.
+- Copy de UI: «Descargar formulario de afiliación» (español). Código, rutas y claves en inglés (`affiliation-form`).
+
 ## 11. Datos iniciales
 
 La semilla (`prisma/seed.ts`) es idempotente: se puede correr varias veces sin duplicar nada.
@@ -922,6 +967,7 @@ Cada módulo cierra con la revisión de ADR-005 antes de empezar el siguiente.
 | 7 | Entregas | Elegibilidad en la ficha, `/beneficios/entregas`, excepción y anulación |
 | 8 | Inicio | `/home` con conteos y recordatorios |
 | 9 | Página pública | `/` con `GET /api/public/site` |
+| 10 | Formulario de afiliación PDF | Descarga desde `/` y `/login`; campos del alta, check de datos personales (leyes XYZ), firmas y declaraciones (§10.11) |
 
 ## 14. Publicación y base de datos
 

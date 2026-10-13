@@ -26,6 +26,7 @@ test.describe('Login', () => {
     await page.getByLabel('Clave').fill('clave-de-prueba');
     await page.getByRole('button', { name: 'Ingresar' }).click();
     await expect(page).toHaveURL(/\/home\/?$/, { timeout: 15_000 });
-    await expect(page.getByRole('heading', { name: /Hola/ })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Inicio' })).toBeVisible();
+    await expect(page.getByText(/Hola, Usuario E2E/)).toBeVisible();
   });
 });

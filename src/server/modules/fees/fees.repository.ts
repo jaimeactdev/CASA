@@ -122,7 +122,7 @@ export function findPaymentMethod(id: string, db: DbClient = prisma) {
 
 export function markFeePaid(
   id: string,
-  data: Prisma.FeeUpdateManyMutationInput,
+  data: Prisma.FeeUncheckedUpdateManyInput,
   db: DbClient = prisma,
 ) {
   return db.fee.updateMany({
